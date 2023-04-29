@@ -1,9 +1,12 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:versalis/song.dart';
 
 class Audioplayer extends StatefulWidget {
-  const Audioplayer({Key? key}) : super(key: key);
+  const Audioplayer({Key? key, required this.song}) : super(key: key);
+
+  final Song song;
 
   @override
   State<Audioplayer> createState() => _AudioplayerState();
@@ -14,49 +17,6 @@ class _AudioplayerState extends State<Audioplayer> {
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
-
-  String title = 'Song Name';
-  String artist = 'Artist Name';
-  String artwork = 'https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2670&q=80';
-  String url = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3';
-  List<String> lyrics = [
-    "The rings all ringed out",
-    "Burn out, cave in",
-    "Blackened to dark out",
-    "I'm mixed now, fleshed out",
-    "There's light with no heat",
-    "We cooled out, it's cool out",
-    "Life is precious",
-    "We found out, we found out",
-    "We found out",
-    "The rings all ringed out",
-    "Burn out, cave in",
-    "Blackened to dark out",
-    "I'm mixed now, fleshed out",
-    "There's light with no heat",
-    "We cooled out, it's cool out",
-    "Life is precious",
-    "We found out, we found out",
-    "We found out",
-    "The rings all ringed out",
-    "Burn out, cave in",
-    "Blackened to dark out",
-    "I'm mixed now, fleshed out",
-    "There's light with no heat",
-    "We cooled out, it's cool out",
-    "Life is precious",
-    "We found out, we found out",
-    "We found out",
-    "The rings all ringed out",
-    "Burn out, cave in",
-    "Blackened to dark out",
-    "I'm mixed now, fleshed out",
-    "There's light with no heat",
-    "We cooled out, it's cool out",
-    "Life is precious",
-    "We found out, we found out",
-    "We found out",
-  ];
 
   @override
   void initState() {
@@ -113,14 +73,14 @@ class _AudioplayerState extends State<Audioplayer> {
             children: [
             ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.network(artwork,
+                  child: Image.network(widget.song.artwork,
                     width: double.infinity,
                     height: 350,
                     fit: BoxFit.cover,)
                 ),
             const SizedBox(height: 32),
               Text (
-            title,
+                widget.song.title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -128,7 +88,7 @@ class _AudioplayerState extends State<Audioplayer> {
             ),
             const SizedBox(height: 4),
               Text (
-              artist,
+                widget.song.artist,
               style: const TextStyle(fontSize: 20),
             ),
               Slider(
@@ -161,7 +121,7 @@ class _AudioplayerState extends State<Audioplayer> {
                     if (isPlaying) {
                       await audioPlayer.pause();
                     } else {
-                      await audioPlayer.play(UrlSource(url));
+                      await audioPlayer.play(UrlSource(widget.song.url));
                     }
                   },
                 ),
@@ -178,9 +138,10 @@ class _AudioplayerState extends State<Audioplayer> {
               ListView.builder(
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
-                itemCount: lyrics.length,
+                primary: false,
+                itemCount: widget.song.lyrics.length,
                 itemBuilder: (context, index) {
-                  final item = lyrics[index];
+                  final item = widget.song.lyrics[index];
 
                   return ListTile(
                     title: Text(item),
