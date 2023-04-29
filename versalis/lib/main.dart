@@ -40,9 +40,9 @@ class LogIn extends StatelessWidget {
         child: MaterialButton(
           onPressed: () {
             _googleSignIn.signIn().then((value) {
-              //addSongsToServer(); to use only for
+              //addSongsToServer(); //to use only when adding new songs to the db
               addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen()));
+              Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen(userEmail: value!.email!)));
             });
           },
           color: Colors.red,
@@ -61,7 +61,6 @@ class LogIn extends StatelessWidget {
 
   Future<void> addUserToServer({required String email, required String name, required String photo}) async {
     final docUser = FirebaseFirestore.instance.collection('users').doc(email);
-    //final user = User(docUser.id, email, name, photo);
     final user = User(email, name, photo);
 
     final json = user.toJson();
@@ -71,6 +70,7 @@ class LogIn extends StatelessWidget {
 
   Future<void> addSongsToServer() async {
     final docUser = FirebaseFirestore.instance.collection('songs').doc();
+
     final Song song1 = Song(docUser.id,'I Love Kanye', 'Kanye West', 'https://samplesongs.netlify.app/album-arts/faded.jpg', 'https://samplesongs.netlify.app/Faded.mp3',
         ["I miss the old Kanye, straight from the 'Go Kanye",
       "Chop up the soul Kanye, set on his goals Kanye",
@@ -89,14 +89,16 @@ class LogIn extends StatelessWidget {
       "And I love you like Kanye loves Kanye"
     ]
     );
-
     final json = song1.toJson();
     await docUser.set(json);
   }
+
 }
 
 class SuccessScreen extends StatefulWidget {
-  SuccessScreen({Key? key}) : super(key: key);
+  SuccessScreen({Key? key, required this.userEmail}) : super(key: key);
+
+  final String userEmail;
 
   @override
   State<SuccessScreen> createState() => _SuccessScreenState();
@@ -157,7 +159,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
   Widget buildSong(Song song) => ListTile(
     title: Text('${song.title} by ${song.artist}'),
-    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,)));},
+    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
   );
 }
 

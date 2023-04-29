@@ -3,10 +3,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/song.dart';
 
+import 'lyricScreen.dart';
+
 class Audioplayer extends StatefulWidget {
-  const Audioplayer({Key? key, required this.song}) : super(key: key);
+  const Audioplayer({Key? key, required this.song, required this.email}) : super(key: key);
 
   final Song song;
+  final String email;
 
   @override
   State<Audioplayer> createState() => _AudioplayerState();
@@ -145,6 +148,9 @@ class _AudioplayerState extends State<Audioplayer> {
 
                   return ListTile(
                     title: Text(item),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LyricScreen(lyric: item, email: widget.email, songId: widget.song.id, lyricIndex: index)));
+                    },
                   );
                 },
               ),
