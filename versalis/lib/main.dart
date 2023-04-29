@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:versalis/audioplayer.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,6 +79,20 @@ class SuccessScreen extends StatelessWidget {
                 ListTile(title: Text('Piesa 2')),
                 ListTile(title: Text('Piesa 3')),
               ],
+            ),
+            MaterialButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer()));
+              },
+              color: Colors.green,
+              height: 50,
+              minWidth: 100,
+              child: const Text(
+                'Audio player',
+                style: TextStyle(
+                    color: Colors.white
+                ),
+              ),
             ),
             MaterialButton(
               onPressed: () {
