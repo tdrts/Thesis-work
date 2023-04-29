@@ -1,7 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:versalis/song.dart';
+import 'package:versalis/Model/song.dart';
 
 class Audioplayer extends StatefulWidget {
   const Audioplayer({Key? key, required this.song}) : super(key: key);
