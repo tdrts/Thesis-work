@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>29653646436-aus3n49v71s743720df5p8hj1abdrnn8.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.29653646436-aus3n49v71s743720df5p8hj1abdrnn8</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>29653646436-2m4nh8jfb191u9ea8rgncg344jedemb9.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCJJaKxjws2x753OYrvdFqPkw0tVyJm_EQ</string>
+	<key>GCM_SENDER_ID</key>
+	<string>29653646436</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.versalis.versalis</string>
+	<key>PROJECT_ID</key>
+	<string>versalis-3a60e</string>
+	<key>STORAGE_BUCKET</key>
+	<string>versalis-3a60e.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:29653646436:ios:613c0568d3c49f3fd67371</string>
+</dict>
+</plist>

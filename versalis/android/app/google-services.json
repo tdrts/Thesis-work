@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "29653646436",
+    "project_id": "versalis-3a60e",
+    "storage_bucket": "versalis-3a60e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:29653646436:android:49f7004e9f6179a9d67371",
+        "android_client_info": {
+          "package_name": "com.versalis.versalis"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "29653646436-2m4nh8jfb191u9ea8rgncg344jedemb9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.versalis.versalis",
+            "certificate_hash": "9d804b35b5c19de95fd4fb64148d8f3c7f91cfa7"
+          }
+        },
+        {
+          "client_id": "29653646436-gjbfdon9lcfo5i9mjmc8m1dvrl5dhhnl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxzyx1P_1TvGSzYF-_mozZ0Rwn5PoI2fQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "29653646436-ggishkmigrlvrk1j32rtrpi811bruttg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
