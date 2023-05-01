@@ -1,12 +1,15 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/song.dart';
 
+import 'Model/transaction.dart';
 import 'lyricScreen.dart';
 
 class Audioplayer extends StatefulWidget {
-  const Audioplayer({Key? key, required this.song, required this.email}) : super(key: key);
+  const Audioplayer({Key? key, required this.song, required this.email})
+      : super(key: key);
 
   final Song song;
   final String email;
@@ -26,7 +29,7 @@ class _AudioplayerState extends State<Audioplayer> {
     super.initState();
 
     audioPlayer.onPlayerStateChanged.listen((state) {
-      if (mounted){
+      if (mounted) {
         setState(() {
           isPlaying = state == PlayerState.playing;
         });
@@ -34,7 +37,7 @@ class _AudioplayerState extends State<Audioplayer> {
     });
 
     audioPlayer.onDurationChanged.listen((newDuration) {
-      if (mounted){
+      if (mounted) {
         setState(() {
           duration = newDuration;
         });
@@ -49,7 +52,6 @@ class _AudioplayerState extends State<Audioplayer> {
       }
     });
   }
-
 
   @override
   void dispose() {
@@ -74,26 +76,27 @@ class _AudioplayerState extends State<Audioplayer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-            ClipRRect(
+              ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.network(widget.song.artwork,
+                  child: Image.network(
+                    widget.song.artwork,
                     width: double.infinity,
                     height: 350,
-                    fit: BoxFit.cover,)
-                ),
-            const SizedBox(height: 32),
-              Text (
+                    fit: BoxFit.cover,
+                  )),
+              const SizedBox(height: 32),
+              Text(
                 widget.song.title,
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
-            ),
-            const SizedBox(height: 4),
-              Text (
+              ),
+              const SizedBox(height: 4),
+              Text(
                 widget.song.artist,
-              style: const TextStyle(fontSize: 20),
-            ),
+                style: const TextStyle(fontSize: 20),
+              ),
               Slider(
                 min: 0,
                 max: duration.inSeconds.toDouble(),
@@ -104,20 +107,19 @@ class _AudioplayerState extends State<Audioplayer> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child : Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(formatTime(position)),
-                    Text(formatTime(duration)),
-                  ],
-                )
-              ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(formatTime(position)),
+                      Text(formatTime(duration)),
+                    ],
+                  )),
               CircleAvatar(
                 radius: 35,
                 child: IconButton(
                   icon: Icon(
-                    isPlaying? Icons.pause : Icons.play_arrow,
+                    isPlaying ? Icons.pause : Icons.play_arrow,
                   ),
                   iconSize: 50,
                   onPressed: () async {
@@ -130,13 +132,14 @@ class _AudioplayerState extends State<Audioplayer> {
                 ),
               ),
               const Padding(
-                  padding: EdgeInsets.all(30),
-                  child :
-                      Text('Lyrics',
-                        style: TextStyle(
-                        fontSize: 20,
-                        fontStyle: FontStyle.italic,
-                      ),),
+                padding: EdgeInsets.all(30),
+                child: Text(
+                  'Lyrics',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
               ),
               ListView.builder(
                 scrollDirection: Axis.vertical,
@@ -149,25 +152,35 @@ class _AudioplayerState extends State<Audioplayer> {
                   return ListTile(
                     title: Text(item),
                     onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LyricScreen(lyric: item, email: widget.email, songId: widget.song.id, lyricIndex: index)));
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LyricScreen(
+                                  lyric: item,
+                                  email: widget.email,
+                                  songId: widget.song.id,
+                                  lyricIndex: index,
+                              )));
                     },
                   );
                 },
               ),
-          ],
+            ],
           ),
         ),
       ),
     );
   }
 
-
   String formatTime(Duration duration) {
-      String twoDigits(int n) => n.toString().padLeft(2, '0');
-      final hours = twoDigits (duration.inHours) ;
-      final minutes = twoDigits(duration.inMinutes. remainder (60)) ;
-      final seconds = twoDigits (duration.inSeconds. remainder (60));
-      return [
-        if (duration.inHours > 0) hours, minutes, seconds, ].join(':');
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return [
+      if (duration.inHours > 0) hours,
+      minutes,
+      seconds,
+    ].join(':');
   }
 }
