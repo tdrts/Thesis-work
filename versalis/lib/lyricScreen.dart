@@ -93,43 +93,43 @@ class _LyricScreenState extends State<LyricScreen> {
       ),
     );
   }
+}
 
-  Future<void> addTransactionToServer({required String userEmail,
-    required String songId,
-    required int lyricIndex,
-    int price = 5}) async {
-    final docUser =
-    FirebaseFirestore.instance.collection('lyricsTransactions').doc();
-    final transaction =
-    TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
 
-    final json = transaction.toJson();
-    await docUser.set(json);
-  }
+Future<void> addTransactionToServer({required String userEmail,
+  required String songId,
+  required int lyricIndex,
+  int price = 5}) async {
+  final docUser =
+  FirebaseFirestore.instance.collection('lyricsTransactions').doc();
+  final transaction =
+  TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
 
-  Stream<List<TransactionLyric>> readTransactions() =>
-      FirebaseFirestore.instance
-          .collection('lyricsTransactions')
-          .snapshots()
-          .map((snapshot) =>
-          snapshot.docs
-              .map((doc) => TransactionLyric.fromJson(doc.data()))
-              .toList());
+  final json = transaction.toJson();
+  await docUser.set(json);
+}
 
-  Future<String?> checkIfLyricsWasBought(String songId, int lyricIndex) async {
-    Stream<List<TransactionLyric>> transactions = readTransactions();
-    Completer<String> completer = Completer();
+Stream<List<TransactionLyric>> readTransactions() =>
+    FirebaseFirestore.instance
+        .collection('lyricsTransactions')
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs
+            .map((doc) => TransactionLyric.fromJson(doc.data()))
+            .toList());
 
-    await for (List<TransactionLyric> transactionLyrics in transactions) {
-      for (var transactionLyric in transactionLyrics) {
-        if ((transactionLyric.songId == songId) &&
-            (transactionLyric.lyricIndex == lyricIndex)) {
-          completer.complete(transactionLyric.userEmail);
-          return completer.future;
-        }
+Future<String?> checkIfLyricsWasBought(String songId, int lyricIndex) async {
+  Stream<List<TransactionLyric>> transactions = readTransactions();
+  Completer<String> completer = Completer();
+
+  await for (List<TransactionLyric> transactionLyrics in transactions) {
+    for (var transactionLyric in transactionLyrics) {
+      if ((transactionLyric.songId == songId) &&
+          (transactionLyric.lyricIndex == lyricIndex)) {
+        completer.complete(transactionLyric.userEmail);
+        return completer.future;
       }
-      return null;
     }
+    return null;
   }
-
 }

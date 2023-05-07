@@ -57,41 +57,27 @@ class LogIn extends StatelessWidget {
       ),
     );
   }
+}
 
-  Future<void> addUserToServer({required String email, required String name, required String photo}) async {
-    final docUser = FirebaseFirestore.instance.collection('users').doc(email);
-    final user = User(email, name, photo);
+Future<void> addUserToServer({required String email, required String name, required String photo}) async {
+  final docUser = FirebaseFirestore.instance.collection('users').doc(email);
+  final user = User(email, name, photo);
 
-    final json = user.toJson();
-    await docUser.set(json);
-    print('${user} logged in succesfully');
-  }
+  final json = user.toJson();
+  await docUser.set(json);
+  print('${user} logged in succesfully');
+}
 
-  Future<void> addSongsToServer() async {
-    final docUser = FirebaseFirestore.instance.collection('songs').doc();
+Future<void> addSongsToServer() async {
+  final docUser = FirebaseFirestore.instance.collection('songs').doc();
 
-    final Song song1 = Song(docUser.id,'I Love Kanye', 'Kanye West', 'https://samplesongs.netlify.app/album-arts/faded.jpg', 'https://samplesongs.netlify.app/Faded.mp3',
-        ["I miss the old Kanye, straight from the 'Go Kanye",
-      "Chop up the soul Kanye, set on his goals Kanye",
-      "I hate the new Kanye, the bad mood Kanye",
-      "The always rude Kanye, spaz in the news Kanye",
-      "I miss the sweet Kanye, chop up the beats Kanye",
-      "I gotta say, at that time I'd like to meet Kanye",
-      "See, I invented Kanye, it wasn't any Kanyes",
-      "And now I look and look around and there's so many Kanyes",
-      "I used to love Kanye, I used to love Kanye",
-      "I even had the pink Polo, I thought I was Kanye",
-      "What if Kanye made a song about Kanye?",
-      "Called \"I Miss The Old Kanye\"?",
-      "Man that'd be so Kanye",
-      "That's all it was Kanye, we still love Kanye",
-      "And I love you like Kanye loves Kanye"
-    ]
-    );
-    final json = song1.toJson();
-    await docUser.set(json);
-  }
-
+  final Song song1 = Song(docUser.id,'I Love Kanye', 'Kanye West', 'https://samplesongs.netlify.app/album-arts/faded.jpg', 'https://samplesongs.netlify.app/Faded.mp3',
+      ["I miss the old Kanye, straight from the 'Go Kanye",
+        "That's all it was Kanye, we still love Kanye"
+      ]
+  );
+  final json = song1.toJson();
+  await docUser.set(json);
 }
 
 class SuccessScreen extends StatefulWidget {
@@ -151,14 +137,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
     );
   }
 
-  Stream<List<Song>> readSongs() => FirebaseFirestore.instance.collection('songs')
-      .snapshots()
-      .map((snapshot) =>
-          snapshot.docs.map((doc) => Song.fromJson(doc.data())).toList());
-
   Widget buildSong(Song song) => ListTile(
     title: Text('${song.title} by ${song.artist}'),
     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
   );
+  
 }
 
+Stream<List<Song>> readSongs() => FirebaseFirestore.instance.collection('songs')
+    .snapshots()
+    .map((snapshot) =>
+    snapshot.docs.map((doc) => Song.fromJson(doc.data())).toList());
