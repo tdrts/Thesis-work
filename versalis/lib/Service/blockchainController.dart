@@ -9,6 +9,7 @@ class BlockchainController {
 
   String? CONTRACT_NAME ;
   String? CONTRACT_ADDRESS;
+  String? JSON_CID;
   http.Client httpClient = http.Client();
   late Web3Client polygonClient;
   int tokenCounter = -1;
@@ -34,6 +35,7 @@ class BlockchainController {
     final ALCHEMY_KEY = dotenv.env['ALCHEMY_KEY_TEST'];
     CONTRACT_NAME = dotenv.env['CONTRACT_NAME'];
     CONTRACT_ADDRESS = dotenv.env['CONTRACT_ADDRESS'];
+    JSON_CID = dotenv.env["JSON_CID"];
     httpClient = http.Client();
     polygonClient = Web3Client(ALCHEMY_KEY!, httpClient);
   }

@@ -129,13 +129,8 @@ class _LyricScreenState extends State<LyricScreen> {
     final transaction =
     TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
 
-    String traits = '';
-
-    String s2 = '"name": "${songId}",' +
-        '"description": "index $lyricIndex",' +
-        '"attributes": $traits';
-
-    blockchainController.mintStream(s2);
+    String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
+    blockchainController.mintStream(url);
 
     final json = transaction.toJson();
     await docUser.set(json);

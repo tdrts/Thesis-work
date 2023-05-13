@@ -14,10 +14,6 @@ module.exports = {
       url: ALCHEMY_KEY_TEST,
       accounts: [WALLET_PRIVATE_KEY]
     },
-    Main: {
-      url: ALCHEMY_KEY_PROD,
-      accounts: [WALLET_PRIVATE_KEY]
-    },
   },
   solidity: "0.8.18",
   etherscan: {

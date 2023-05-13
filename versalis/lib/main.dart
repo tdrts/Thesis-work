@@ -73,11 +73,24 @@ Future<void> addUserToServer({required String email, required String name, requi
 }
 
 Future<void> addSongsToServer() async {
-  final docUser = FirebaseFirestore.instance.collection('songs').doc();
+  final docUser = FirebaseFirestore.instance.collection('songs').doc("song0");
 
-  final Song song1 = Song(docUser.id,'I Love Kanye', 'Kanye West', 'https://samplesongs.netlify.app/album-arts/faded.jpg', 'https://samplesongs.netlify.app/Faded.mp3',
-      ["I miss the old Kanye, straight from the 'Go Kanye",
-        "That's all it was Kanye, we still love Kanye"
+  final Song song1 = Song(docUser.id,'Coffee for Your Head', 'Powfu', 'artwork": "https://samplesongs.netlify.app/album-arts/death-bed.jpg', 'https://samplesongs.netlify.app/Death%20Bed.mp3',
+      ["Don't stay awake for too long, don't go to bed",
+        "I'll make a cup of coffee for your head",
+        "It'll get you up and going out of bed",
+        "Yeah, I don't wanna fall asleep, I don't wanna pass away",
+        "I been thinking of our future, 'cause I'll never see those days",
+        "I don't know why this has happened, but I probably deserve it",
+        "I tried to do my best, but you know that I'm not perfect",
+        "I been praying for forgiveness, you've been praying for my health",
+        "When I leave this Earth, hoping you'll find someone else",
+        "'Cause, yeah, we still young, there's so much we haven't done",
+        "Getting married, start a family, watch your husband with his son",
+        "I wish it could be me, but I won't make it out this bed",
+        "I hope I go to Heaven, so I see you once again",
+        "My life was kinda short, but I got so many blessings",
+        "Happy you were mine, it sucks that it's all ending",
       ]
   );
   final json = song1.toJson();
