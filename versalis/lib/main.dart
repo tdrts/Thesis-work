@@ -1,13 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:versalis/Model/user.dart';
 import 'package:versalis/audioplayer.dart';
 import 'package:versalis/Model/song.dart';
+import 'package:versalis/Service/blockchainController.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  BlockchainController.instance;
   await Firebase.initializeApp();
   runApp(const MyApp());
 }

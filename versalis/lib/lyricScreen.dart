@@ -5,6 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/transaction.dart';
 
+import 'Service/blockchainController.dart';
+
 class LyricScreen extends StatefulWidget {
   const LyricScreen({
     Key? key,
@@ -24,6 +26,7 @@ class LyricScreen extends StatefulWidget {
 }
 
 class _LyricScreenState extends State<LyricScreen> {
+  final blockchainController = BlockchainController.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +43,28 @@ class _LyricScreenState extends State<LyricScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Text(blockchainController.CONTRACT_ADDRESS!),
+            FutureBuilder<String>(
+              future: blockchainController.getTokenSymbol(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Text('\nToken symbol: ${snapshot.data!}');
+                } else {
+                  return Text('\nToken symbol: wait...');
+                }
+              },
+            ),
+            FutureBuilder<int>(
+              future: blockchainController.gettokenCounter(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  blockchainController.tokenCounter = snapshot.data!;
+                  return Text('\nNumber of tokens: ${blockchainController.tokenCounter}');
+                } else {
+                  return Text('\nNumber of tokens: wait...');
+                }
+              },
+            ),
             Text(
               'Lyric: ${widget.lyric}',
               style: const TextStyle(
@@ -50,6 +75,7 @@ class _LyricScreenState extends State<LyricScreen> {
             FutureBuilder<String?>(
               future: checkIfLyricsWasBought(widget.songId, widget.lyricIndex),
               builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+
                 if (snapshot.connectionState == ConnectionState.done) {
 
                   if (snapshot.hasData && snapshot.data != null) {
@@ -93,21 +119,31 @@ class _LyricScreenState extends State<LyricScreen> {
       ),
     );
   }
+
+  Future<void> addTransactionToServer({required String userEmail,
+    required String songId,
+    required int lyricIndex,
+    int price = 10}) async {
+    final docUser =
+    FirebaseFirestore.instance.collection('lyricsTransactions').doc();
+    final transaction =
+    TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
+
+    String traits = '';
+
+    String s2 = '"name": "${songId}",' +
+        '"description": "index $lyricIndex",' +
+        '"attributes": $traits';
+
+    blockchainController.mintStream(s2);
+
+    final json = transaction.toJson();
+    await docUser.set(json);
+  }
 }
 
 
-Future<void> addTransactionToServer({required String userEmail,
-  required String songId,
-  required int lyricIndex,
-  int price = 5}) async {
-  final docUser =
-  FirebaseFirestore.instance.collection('lyricsTransactions').doc();
-  final transaction =
-  TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
 
-  final json = transaction.toJson();
-  await docUser.set(json);
-}
 
 Stream<List<TransactionLyric>> readTransactions() =>
     FirebaseFirestore.instance
