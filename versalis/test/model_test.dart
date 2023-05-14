@@ -44,6 +44,7 @@ void main() {
         'song_1',
         0,
         5,
+        "a.com",
       );
       expect(purchase.toJson(), equals({
         'id' : '1',
@@ -51,6 +52,7 @@ void main() {
         'songId' : 'song_1',
         'lyricIndex' : 0,
         'price' : 5,
+        'link' : "a.com",
       }));
     });
 
@@ -83,6 +85,7 @@ void main() {
       'songId' : 'song_1',
       'lyricIndex' : 0,
       'price' : 5,
+      'link' : "a.com"
     };
     final transaction = TransactionLyric.fromJson(transactionJson);
     expect(transaction.id, equals('1'));
@@ -90,5 +93,6 @@ void main() {
     expect(transaction.songId, equals('song_1'));
     expect(transaction.lyricIndex, equals(0));
     expect(transaction.price, equals(5));
+    expect(transaction.link, equals("a.com"));
   });
 }

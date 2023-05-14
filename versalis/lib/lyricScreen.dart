@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +8,10 @@ import 'package:versalis/Model/bid.dart';
 import 'package:versalis/Model/transaction.dart';
 
 import 'Service/blockchainController.dart';
+
+//length of the auction
+const SECONDS = 10;
+final blockchainController = BlockchainController.instance;
 
 class LyricScreen extends StatefulWidget {
   const LyricScreen({
@@ -29,15 +32,14 @@ class LyricScreen extends StatefulWidget {
 }
 
 class _LyricScreenState extends State<LyricScreen> {
-  final blockchainController = BlockchainController.instance;
+
   AuctionItem? item;
   Timer? timer;
-  int seconds = 30;
-  bool? isBiddingActive;
-  // verificat daca nu e null verificat daca timpul a trecut
+  int seconds = SECONDS;
 
   @override
   void initState() {
+
     timer = Timer.periodic(const Duration(seconds: 1) ,(timer){
       FirebaseFirestore.instance
           .collection('auctionItems')
@@ -45,8 +47,7 @@ class _LyricScreenState extends State<LyricScreen> {
           .where("lyricIndex", isEqualTo: widget.lyricIndex)
           .get().then ((event) {
         if (event.docs.isNotEmpty){
-          print("se continua licitatia!");
-          isBiddingActive = true;
+          //print("auction in progress");
           var current = AuctionItem.fromJson(event.docs[0].data());
 
           setState(() {
@@ -54,45 +55,30 @@ class _LyricScreenState extends State<LyricScreen> {
             seconds--;
           });
 
-          seconds = 30 - DateTime.now().subtract(Duration(seconds: item!.biddings.last.time.second)).second;
-          print("after setState is $seconds");
-          print(item!.biddings.last.time!);
-          print(item!.biddings.last.time.add(const Duration(seconds: 30)));
-          print(DateTime.now());
-          if (item!.biddings.last.time.add(const Duration(seconds: 30)).isBefore(DateTime.now())){
+          seconds = SECONDS - DateTime.now().subtract(Duration(seconds: item!.biddings.last.time.second)).second;
 
-            print("s-a terminat tranzactia");
-            FirebaseFirestore.instance
-                .collection('lyricsTransactions')
-                .where("songId", isEqualTo: widget.songId)
-                .where("lyricIndex", isEqualTo: widget.lyricIndex)
-                .get().then ((event) {
-                    if (event.docs.isEmpty){
-                      addTransactionToServer(
-                          userEmail: item!.biddings.last.userEmail,
-                          songId: widget.songId,
-                          lyricIndex: widget.lyricIndex);
-                      print("s-a adaugat la fb");
-                      setState(() {});
-                    }
+          // print("after setState is $seconds");
+          // print(item!.biddings.last.time!);
+          // print(item!.biddings.last.time.add(const Duration(seconds: SECONDS)));
+          // print(DateTime.now());
+
+          if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
+            print("no more time for bidding");
+
+            addTransactionToServer(
+                userEmail: item!.biddings.last.userEmail,
+                songId: widget.songId,
+                lyricIndex: widget.lyricIndex).then((value){
+              setState(() {});
             });
 
-            isBiddingActive = false;
             timer.cancel();
           }
         } else {
-          print("trece timpul trece");
+          //print("passing seconds");
         }
       });
-      if (isBiddingActive == false){
-        setState(() {});
-        print("set state pt active bidding false");
-      }
     });
-    if (isBiddingActive == false){
-      setState(() {});
-      print("set state pt active bidding false dupa timer");
-    }
     super.initState();
   }
 
@@ -147,19 +133,28 @@ class _LyricScreenState extends State<LyricScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            FutureBuilder<String?>(
+            FutureBuilder<TransactionLyric?>(
               future: checkIfLyricsWasBought(widget.songId, widget.lyricIndex),
-              builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+              builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
 
                 if (snapshot.connectionState == ConnectionState.done) {
 
                   if (snapshot.hasData && snapshot.data != null) {
-                    //print('lyric already bought');
+                    //print('lyric is bought');
                     timer?.cancel();
+                    print('Email: ${snapshot.data!.userEmail}');
+                    print('NFT Link: ${snapshot.data!.link}');
+
                     return Column(
                       children: [
                         Text(
-                          'Email: ${snapshot.data!}',
+                          'Email: ${snapshot.data!.userEmail}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          'NFT Link: ${snapshot.data!.link}',
                           style: const TextStyle(
                             fontSize: 14,
                           ),
@@ -178,11 +173,6 @@ class _LyricScreenState extends State<LyricScreen> {
                             iconSize: 40,
                             onPressed: () {
                               addBidToServer(widget.email, widget.songId, widget.lyricIndex, 55);
-                              // addTransactionToServer(
-                              //     userEmail: widget.email,
-                              //     songId: widget.songId,
-                              //     lyricIndex: widget.lyricIndex);
-                              // setState(() {});
                             },
                           ),
                         ),
@@ -191,7 +181,6 @@ class _LyricScreenState extends State<LyricScreen> {
                     );
                   }
                 } else {
-                  //print('loading');
                   return const Center(child: CircularProgressIndicator());
                 }
               },
@@ -201,71 +190,72 @@ class _LyricScreenState extends State<LyricScreen> {
       ),
     );
   }
-
-  Future addBidToServer(String userEmail, String song, int index, int price ) {
-
-    return FirebaseFirestore.instance
-        .collection('auctionItems')
-        .where("songId", isEqualTo: song)
-        .where("lyricIndex", isEqualTo: index)
-        .get().then ((event) {
-          if (event.docs.isEmpty){
-            final docUser = FirebaseFirestore.instance.collection('auctionItems').doc();
-            final bid = Bid(userEmail, price, DateTime.now());
-            final item = AuctionItem(song, index, [bid]);
-
-            final json = item.toJson();
-            print("s-a inceput licitatia!");
-            return docUser.set(json);
-          } else {
-            final docUser = FirebaseFirestore.instance.collection('auctionItems').doc(event.docs[0].id);
-            var current = AuctionItem.fromJson(event.docs[0].data());
-            final bid = Bid(userEmail, price, DateTime.now());
-
-            current.biddings.add(bid);
-            final json = current.toJson();
-            print("s-a adaugat un nou bid!");
-            return docUser.update(json);
-          }
-    });
-  }
-
-  Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex, int price = 10}) async {
-    final docUser = FirebaseFirestore.instance.collection('lyricsTransactions').doc();
-    final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price);
-
-    String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
-    //blockchainController.mintStream(url);
-
-    final json = transaction.toJson();
-    await docUser.set(json);
-  }
 }
 
+Future addBidToServer(String userEmail, String song, int index, int price) {
+  return FirebaseFirestore.instance
+      .collection('auctionItems')
+      .where("songId", isEqualTo: song)
+      .where("lyricIndex", isEqualTo: index)
+      .get()
+      .then((event) {
+    if (event.docs.isEmpty) {
+      final docUser = FirebaseFirestore.instance.collection('auctionItems').doc();
+      final bid = Bid(userEmail, price, DateTime.now());
+      final item = AuctionItem(song, index, [bid]);
 
+      final json = item.toJson();
+      print("Start auction!");
+      return docUser.set(json);
+    } else {
+      final docUser = FirebaseFirestore.instance
+          .collection('auctionItems')
+          .doc(event.docs[0].id);
+      var current = AuctionItem.fromJson(event.docs[0].data());
+      final bid = Bid(userEmail, price, DateTime.now());
 
-
-Stream<List<TransactionLyric>> readTransactions() =>
-    FirebaseFirestore.instance
-        .collection('lyricsTransactions')
-        .snapshots()
-        .map((snapshot) =>
-        snapshot.docs
-            .map((doc) => TransactionLyric.fromJson(doc.data()))
-            .toList());
-
-Future<String?> checkIfLyricsWasBought(String songId, int lyricIndex) async {
-  Stream<List<TransactionLyric>> transactions = readTransactions();
-  Completer<String> completer = Completer();
-
-  await for (List<TransactionLyric> transactionLyrics in transactions) {
-    for (var transactionLyric in transactionLyrics) {
-      if ((transactionLyric.songId == songId) &&
-          (transactionLyric.lyricIndex == lyricIndex)) {
-        completer.complete(transactionLyric.userEmail);
-        return completer.future;
-      }
+      current.biddings.add(bid);
+      final json = current.toJson();
+      print("New bid!");
+      return docUser.update(json);
     }
-    return null;
-  }
+  });
 }
+
+
+Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex, int price = 10}) async {
+
+  TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex);
+  if (isBought != null) {
+    return Future(() => null);
+  }
+
+  final docUser = FirebaseFirestore.instance.collection('lyricsTransactions').doc();
+  final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price,
+      "https://testnets.opensea.io/assets/mumbai/${blockchainController.CONTRACT_ADDRESS}/${blockchainController.tokenCounter}");
+
+  String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
+
+  blockchainController.mintStream(url);
+
+  final json = transaction.toJson();
+  await docUser.set(json);
+}
+
+
+Future<TransactionLyric?> checkIfLyricsWasBought(String songId, int lyricIndex) {
+  return FirebaseFirestore.instance
+      .collection('lyricsTransactions')
+      .where("songId", isEqualTo: songId)
+      .where("lyricIndex", isEqualTo: lyricIndex)
+      .get()
+      .then((event) {
+    if (event.docs.isEmpty) {
+      return null;
+    } else {
+      var current = TransactionLyric.fromJson(event.docs[0].data());
+      return current;
+    }
+  });
+}
+

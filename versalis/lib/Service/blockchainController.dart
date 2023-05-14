@@ -98,11 +98,7 @@ class BlockchainController {
   }
 
   Future<int> gettokenCounter() async {
-    if (tokenCounter >= 0) {
-      return tokenCounter;
-    } else {
-      List<dynamic> result = await query('tokenCounter', []);
+    List<dynamic> result = await query('tokenCounter', []);
       return int.parse(result[0].toString());
-    }
   }
 }
