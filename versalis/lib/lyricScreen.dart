@@ -8,6 +8,7 @@ import 'package:versalis/Model/bid.dart';
 import 'package:versalis/Model/transaction.dart';
 
 import 'Service/blockchainController.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 //length of the auction
 const SECONDS = 10;
@@ -104,35 +105,26 @@ class _LyricScreenState extends State<LyricScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(blockchainController.CONTRACT_ADDRESS!),
-            FutureBuilder<String>(
-              future: blockchainController.getTokenSymbol(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Text('\nToken symbol: ${snapshot.data!}');
-                } else {
-                  return Text('\nToken symbol: wait...');
-                }
-              },
-            ),
             FutureBuilder<int>(
               future: blockchainController.gettokenCounter(),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   blockchainController.tokenCounter = snapshot.data!;
-                  return Text('\nNumber of tokens: ${blockchainController.tokenCounter}');
+                  return Text('\nToken number ${blockchainController.tokenCounter}');
                 } else {
-                  return Text('\nNumber of tokens: wait...');
+                  return Text('\nToken number: ...');
                 }
               },
             ),
             Text(
-              'Lyric: ${widget.lyric}',
+              '"${widget.lyric}"',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
+              textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 100),
             FutureBuilder<TransactionLyric?>(
               future: checkIfLyricsWasBought(widget.songId, widget.lyricIndex),
               builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
@@ -142,41 +134,58 @@ class _LyricScreenState extends State<LyricScreen> {
                   if (snapshot.hasData && snapshot.data != null) {
                     //print('lyric is bought');
                     timer?.cancel();
-                    print('Email: ${snapshot.data!.userEmail}');
-                    print('NFT Link: ${snapshot.data!.link}');
-
                     return Column(
                       children: [
                         Text(
-                          'Email: ${snapshot.data!.userEmail}',
+                          'Owner: ${snapshot.data!.userEmail}',
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 15,
+                            color: Colors.black,
                           ),
                         ),
-                        Text(
-                          'NFT Link: ${snapshot.data!.link}',
-                          style: const TextStyle(
-                            fontSize: 14,
+                        const SizedBox(height: 20),
+                        InkWell(
+                          child: Text(
+                            'NFT Link: ${snapshot.data!.link}',
+                            style: const TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
+                          onTap: () async {
+                            var url = snapshot.data!.link;
+                            if(await canLaunchUrl(Uri.parse(url))){
+                              await launchUrl(Uri.parse(url));
+                            }else {
+                              throw 'Could not launch $url';
+                            }
+                          },
                         ),
-                        const Text("already bought!"),
                       ],
                     );
                   } else {
                     //print('lyric is NOT bought');
                     return Column(
                       children: [
+                        const SizedBox(height: 40),
+                        Text("00:$seconds seconds to make a new bid",
+                          style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                        ),
+                        ),
+                        const SizedBox(height: 20),
                         CircleAvatar(
-                          radius: 25,
+                          radius: 40,
                           child: IconButton(
-                            icon: const Icon(Icons.account_balance_wallet),
-                            iconSize: 40,
+                            icon: const Icon(Icons.add),
+                            iconSize: 60,
                             onPressed: () {
                               addBidToServer(widget.email, widget.songId, widget.lyricIndex, 55);
                             },
                           ),
                         ),
-                        Text("$seconds"),
                       ],
                     );
                   }

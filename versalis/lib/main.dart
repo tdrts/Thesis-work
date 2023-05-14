@@ -24,7 +24,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Versalis',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: LogIn(),
     );
@@ -39,28 +40,53 @@ class LogIn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: MaterialButton(
-          onPressed: () {
-            _googleSignIn.signIn().then((value) {
-              //addSongsToServer(); //to use only when adding new songs to the db
-              addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
-              Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen(userEmail: value!.email!)));
-            });
-          },
-          color: Colors.red,
-          height: 50,
-          minWidth: 100,
-          child: const Text(
-            'Google SignIn',
-            style: TextStyle(
-              color: Colors.white
+      body: SizedBox.expand(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.green,
+                Colors.teal,
+              ],
             ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Versalis',
+                style: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Support Your Artist',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
+              ),
+              SizedBox(height: 200),
+              MaterialButton(
+                onPressed: () {
+                  _googleSignIn.signIn().then((value) {
+                  //             //addSongsToServer(); //to use only when adding new songs to the db
+                  addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen(userEmail: value!.email!)));
+                  });
+                },
+                child: Image.asset('assets/images/google.png', width: 400,),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+
 }
 
 Future<void> addUserToServer({required String email, required String name, required String photo}) async {
@@ -78,19 +104,6 @@ Future<void> addSongsToServer() async {
   final Song song1 = Song(docUser.id,'Coffee for Your Head', 'Powfu', 'artwork": "https://samplesongs.netlify.app/album-arts/death-bed.jpg', 'https://samplesongs.netlify.app/Death%20Bed.mp3',
       ["Don't stay awake for too long, don't go to bed",
         "I'll make a cup of coffee for your head",
-        "It'll get you up and going out of bed",
-        "Yeah, I don't wanna fall asleep, I don't wanna pass away",
-        "I been thinking of our future, 'cause I'll never see those days",
-        "I don't know why this has happened, but I probably deserve it",
-        "I tried to do my best, but you know that I'm not perfect",
-        "I been praying for forgiveness, you've been praying for my health",
-        "When I leave this Earth, hoping you'll find someone else",
-        "'Cause, yeah, we still young, there's so much we haven't done",
-        "Getting married, start a family, watch your husband with his son",
-        "I wish it could be me, but I won't make it out this bed",
-        "I hope I go to Heaven, so I see you once again",
-        "My life was kinda short, but I got so many blessings",
-        "Happy you were mine, it sucks that it's all ending",
       ]
   );
   final json = song1.toJson();
@@ -113,49 +126,83 @@ class _SuccessScreenState extends State<SuccessScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          children: [
-            StreamBuilder<List<Song>>(
-                stream: readSongs(),
-              builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    print(snapshot.error);
-                    return Text("Something went wrong ${snapshot.error}");
-                  } else if (snapshot.hasData) {
-                      final songs = snapshot.data!;
-
-                      return ListView(
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        primary: false,
-                        children: songs.map(buildSong).toList(),
-                      );
-                  } else {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-              }
-            ),
-            MaterialButton(
-              onPressed: () {
-                _googleSignIn.disconnect().then((value) => print("Logged out"));
-                Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
-              },
-              color: Colors.blue,
-              child: const Text(
-                'Log out',
-                style: TextStyle(
-                    color: Colors.white
-                ),
+        child: SizedBox.expand(
+          child: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.green,
+                  Colors.teal,
+                ],
               ),
             ),
-          ],
+            child: Column(
+              children: [
+                const SafeArea(
+                  top: true,
+                  child: Text(
+                    'Playlist',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.underline,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                StreamBuilder<List<Song>>(
+                    stream: readSongs(),
+                  builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        print(snapshot.error);
+                        return Text("Something went wrong ${snapshot.error}");
+                      } else if (snapshot.hasData) {
+                          final songs = snapshot.data!;
+
+                          return ListView(
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            primary: false,
+                            children: songs.map(buildSong).toList(),
+                          );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                  }
+                ),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: MaterialButton(
+                      onPressed: () {
+                        _googleSignIn.disconnect().then((value) => print("Logged out"));
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
+                      },
+                      child: Image.asset('assets/images/google_out.png', width: 400,),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget buildSong(Song song) => ListTile(
-    title: Text('${song.title} by ${song.artist}'),
+    title: Text(song.title,
+      style: const TextStyle(
+        fontSize: 20,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+    ),
+    subtitle: Text(song.artist,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.white,
+      ),),
     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
   );
   
