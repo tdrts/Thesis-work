@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 //length of the auction
 const SECONDS = 10;
+const INITIAL_PRICE = 5;
 final blockchainController = BlockchainController.instance;
 
 class LyricScreen extends StatefulWidget {
@@ -37,6 +38,9 @@ class _LyricScreenState extends State<LyricScreen> {
   AuctionItem? item;
   Timer? timer;
   int seconds = SECONDS;
+  int price = INITIAL_PRICE;
+  bool isAuctionActive = false;
+  bool? winning;
 
   @override
   void initState() {
@@ -49,6 +53,7 @@ class _LyricScreenState extends State<LyricScreen> {
           .get().then ((event) {
         if (event.docs.isNotEmpty){
           //print("auction in progress");
+          isAuctionActive = true;
           var current = AuctionItem.fromJson(event.docs[0].data());
 
           setState(() {
@@ -57,6 +62,13 @@ class _LyricScreenState extends State<LyricScreen> {
           });
 
           seconds = SECONDS - DateTime.now().subtract(Duration(seconds: item!.biddings.last.time.second)).second;
+          price = item!.biddings.last.price;
+
+          if (item!.biddings.last.userEmail == widget.email){
+            winning = true;
+          } else {
+            winning = false;
+          }
 
           // print("after setState is $seconds");
           // print(item!.biddings.last.time!);
@@ -65,14 +77,20 @@ class _LyricScreenState extends State<LyricScreen> {
 
           if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
             print("no more time for bidding");
+            int winnerPrice = item!.biddings.last.price;
 
             addTransactionToServer(
                 userEmail: item!.biddings.last.userEmail,
                 songId: widget.songId,
-                lyricIndex: widget.lyricIndex).then((value){
+                lyricIndex: widget.lyricIndex,
+                price : winnerPrice,).then((value){
               setState(() {});
             });
+            print("winer price after add trans to server $price");
 
+            price = INITIAL_PRICE;
+            print("price after reinit $price");
+            isAuctionActive = false;
             timer.cancel();
           }
         } else {
@@ -110,7 +128,7 @@ class _LyricScreenState extends State<LyricScreen> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   blockchainController.tokenCounter = snapshot.data!;
-                  return Text('\nToken number ${blockchainController.tokenCounter}');
+                  return Text('${blockchainController.tokenCounter} minted tokens until now');
                 } else {
                   return Text('\nToken number: ...');
                 }
@@ -119,12 +137,12 @@ class _LyricScreenState extends State<LyricScreen> {
             Text(
               '"${widget.lyric}"',
               style: const TextStyle(
-                fontSize: 24,
+                fontSize: 25,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 100),
+            const SizedBox(height: 80),
             FutureBuilder<TransactionLyric?>(
               future: checkIfLyricsWasBought(widget.songId, widget.lyricIndex),
               builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
@@ -134,21 +152,25 @@ class _LyricScreenState extends State<LyricScreen> {
                   if (snapshot.hasData && snapshot.data != null) {
                     //print('lyric is bought');
                     timer?.cancel();
+                    String lyricOwner = 'Owner: ${snapshot.data!.userEmail}';
+                    if (snapshot.data!.userEmail == widget.email) {
+                      lyricOwner = "You are the happy owner of this lyric!";
+                    }
                     return Column(
                       children: [
                         Text(
-                          'Owner: ${snapshot.data!.userEmail}',
+                          '$lyricOwner',
                           style: const TextStyle(
-                            fontSize: 15,
+                            fontSize: 18,
                             color: Colors.black,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 40),
                         InkWell(
                           child: Text(
-                            'NFT Link: ${snapshot.data!.link}',
+                            'NFT Link: ${snapshot.data!.link}. Tap to open!',
                             style: const TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               color: Colors.black,
                             ),
                             textAlign: TextAlign.center,
@@ -166,14 +188,41 @@ class _LyricScreenState extends State<LyricScreen> {
                     );
                   } else {
                     //print('lyric is NOT bought');
+                    String auctionStatus = "00:$seconds seconds remaining";
+                    if (isAuctionActive == false) {
+                      auctionStatus = "Press + to start the auction";
+                    }
+
+                    String winningStatus = "Auction not started";
+                    if (isAuctionActive == true) {
+                      if (winning! == true) {
+                        winningStatus = "You are WINNING";
+                      } else {
+                        winningStatus = "You are LOSING";
+                      }
+                    }
+
                     return Column(
                       children: [
-                        const SizedBox(height: 40),
-                        Text("00:$seconds seconds to make a new bid",
+                        Text("Auction status: \t$winningStatus",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Text(auctionStatus,
                           style: const TextStyle(
                           fontSize: 20,
                           color: Colors.black,
                         ),
+                        ),
+                        const SizedBox(height: 30),
+                        Text("Tap + to bid $price\$!",
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         CircleAvatar(
@@ -182,7 +231,8 @@ class _LyricScreenState extends State<LyricScreen> {
                             icon: const Icon(Icons.add),
                             iconSize: 60,
                             onPressed: () {
-                              addBidToServer(widget.email, widget.songId, widget.lyricIndex, 55);
+                              price++;
+                              addBidToServer(widget.email, widget.songId, widget.lyricIndex, price);
                             },
                           ),
                         ),
@@ -211,6 +261,7 @@ Future addBidToServer(String userEmail, String song, int index, int price) {
     if (event.docs.isEmpty) {
       final docUser = FirebaseFirestore.instance.collection('auctionItems').doc();
       final bid = Bid(userEmail, price, DateTime.now());
+      print("price for the first bid $price");
       final item = AuctionItem(song, index, [bid]);
 
       final json = item.toJson();
@@ -226,13 +277,14 @@ Future addBidToServer(String userEmail, String song, int index, int price) {
       current.biddings.add(bid);
       final json = current.toJson();
       print("New bid!");
+      print("price for the new bid $price");
       return docUser.update(json);
     }
   });
 }
 
 
-Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex, int price = 10}) async {
+Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price}) async {
 
   TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex);
   if (isBought != null) {
@@ -243,9 +295,11 @@ Future<void> addTransactionToServer({required String userEmail, required String 
   final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price,
       "https://testnets.opensea.io/assets/mumbai/${blockchainController.CONTRACT_ADDRESS}/${blockchainController.tokenCounter}");
 
+  print("winning price $price");
+
   String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
 
-  blockchainController.mintStream(url);
+  //blockchainController.mintStream(url);
 
   final json = transaction.toJson();
   await docUser.set(json);
