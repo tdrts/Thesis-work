@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../Model/auctionitem.dart';
 import '../Model/bid.dart';
@@ -8,6 +9,28 @@ import '../Model/user.dart';
 import 'blockchainController.dart';
 
 final blockchainController = BlockchainController.instance;
+
+
+//after an auction is finished, add the transaction to server
+Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price}) async {
+
+  TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex);
+  if (isBought != null) {
+    return Future(() => null);
+  }
+
+  final docUser = FirebaseFirestore.instance.collection('lyricsTransactions').doc();
+  final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price,
+      "https://testnets.opensea.io/assets/mumbai/${blockchainController.CONTRACT_ADDRESS}/${blockchainController.tokenCounter}");
+
+  String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
+
+  //uncomment the next line when you want the NFT to be minted
+  //blockchainController.mintStream(url);
+
+  final json = transaction.toJson();
+  await docUser.set(json);
+}
 
 //display available songs in playlist
 Stream<List<Song>> readSongs() => FirebaseFirestore.instance.collection('songs')
@@ -32,25 +55,6 @@ Future<TransactionLyric?> checkIfLyricsWasBought(String songId, int lyricIndex) 
   });
 }
 
-//after an auction is finished, add the transaction to server
-Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price}) async {
-
-  TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex);
-  if (isBought != null) {
-    return Future(() => null);
-  }
-
-  final docUser = FirebaseFirestore.instance.collection('lyricsTransactions').doc();
-  final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price,
-      "https://testnets.opensea.io/assets/mumbai/${blockchainController.CONTRACT_ADDRESS}/${blockchainController.tokenCounter}");
-
-  String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
-
-  //blockchainController.mintStream(url);
-
-  final json = transaction.toJson();
-  await docUser.set(json);
-}
 
 //add a new bid to the auction
 Future addBidToServer(String userEmail, String song, int index, int price) {
@@ -79,6 +83,16 @@ Future addBidToServer(String userEmail, String song, int index, int price) {
       return docUser.update(json);
     }
   });
+}
+
+//used to open the OpenSea NFT link
+Future<void> launchUrlFromText(link) async {
+  var url = link;
+  if(await canLaunchUrl(Uri.parse(url))){
+  await launchUrl(Uri.parse(url));
+  } else {
+  throw 'Could not launch $url';
+  }
 }
 
 //add a new user logged in

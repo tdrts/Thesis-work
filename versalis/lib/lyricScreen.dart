@@ -4,11 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/auctionitem.dart';
-import 'package:versalis/Model/bid.dart';
 import 'package:versalis/Model/transaction.dart';
 
 import 'Service/blockchainController.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'Service/utils.dart';
 
@@ -50,7 +48,6 @@ class _LyricScreenState extends State<LyricScreen> {
 
   @override
   void initState() {
-
     timer = Timer.periodic(const Duration(seconds: 1) ,(timer){
       FirebaseFirestore.instance
           .collection('auctionItems')
@@ -59,46 +56,45 @@ class _LyricScreenState extends State<LyricScreen> {
           .get().then ((event) {
         if (event.docs.isNotEmpty){
           isAuctionActive = true;
-          var current = AuctionItem.fromJson(event.docs[0].data());
 
           setState(() {
-            item = current;
+            item = AuctionItem.fromJson(event.docs[0].data());
             seconds--;
           });
 
-          seconds = SECONDS - DateTime.now().subtract(Duration(seconds: item!.biddings.last.time.second)).second;
-          price = item!.biddings.last.price;
-
-          if (item!.biddings.last.userEmail == widget.email){
-            winning = true;
-          } else {
-            winning = false;
-          }
-
-          if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
-            int winnerPrice = item!.biddings.last.price;
-
-            addTransactionToServer(
-                userEmail: item!.biddings.last.userEmail,
-                songId: widget.songId,
-                lyricIndex: widget.lyricIndex,
-                price : winnerPrice,).then((value){
-              setState(() {});
-            });
-
-            price = INITIAL_PRICE;
-            isAuctionActive = false;
-            timer.cancel();
-          }
-        } else {}
+          updateSecondsAndPrice();
+          winning = checkForWinningStatus();
+          checkIfAuctionIsFinished();
+        }
       });
     });
     super.initState();
   }
 
+  void updateSecondsAndPrice() {
+    seconds = SECONDS - DateTime.now().subtract(Duration(seconds: item!.biddings.last.time.second)).second;
+    price = item!.biddings.last.price;
+  }
+
+  bool checkForWinningStatus() => item!.biddings.last.userEmail == widget.email;
+
+  void checkIfAuctionIsFinished() {
+    if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
+      int winnerPrice = item!.biddings.last.price;
+
+      addTransactionToServer(userEmail: item!.biddings.last.userEmail, songId: widget.songId, lyricIndex: widget.lyricIndex, price : winnerPrice,)
+          .then((value){
+        setState(() {});
+      });
+
+      price = INITIAL_PRICE;
+      isAuctionActive = false;
+      timer?.cancel();
+    }
+  }
+
   @override
   void dispose() {
-    // TODO: implement dispose
     timer?.cancel();
     super.dispose();
   }
@@ -118,17 +114,7 @@ class _LyricScreenState extends State<LyricScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FutureBuilder<int>(
-              future: blockchainController.getTokenCounter(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  blockchainController.tokenCounter = snapshot.data!;
-                  return Text('${blockchainController.tokenCounter} minted tokens until now');
-                } else {
-                  return Text('\nToken number: ...');
-                }
-              },
-            ),
+            tokenNumberText(),
             Text(
               '"${widget.lyric}"',
               style: const TextStyle(
@@ -143,96 +129,25 @@ class _LyricScreenState extends State<LyricScreen> {
               builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
 
                 if (snapshot.connectionState == ConnectionState.done) {
-
                   if (snapshot.hasData && snapshot.data != null) {
                     timer?.cancel();
-                    String lyricOwner = 'Owner: ${snapshot.data!.userEmail}';
-                    if (snapshot.data!.userEmail == widget.email) {
-                      lyricOwner = "You are the happy owner of this lyric!";
-                    }
                     return Column(
                       children: [
-                        Text(
-                          '$lyricOwner',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        ownerText(snapshot.data!.userEmail),
                         const SizedBox(height: 40),
-                        InkWell(
-                          child: Text(
-                            'NFT Link:\n${snapshot.data!.link}\nTap to open in OpenSea!',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.black,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          onTap: () async {
-                            var url = snapshot.data!.link;
-                            if(await canLaunchUrl(Uri.parse(url))){
-                              await launchUrl(Uri.parse(url));
-                            }else {
-                              throw 'Could not launch $url';
-                            }
-                          },
-                        ),
+                        NFTLinkText(snapshot.data!.link),
                       ],
                     );
                   } else {
-                    String auctionStatus = "00:$seconds seconds remaining";
-                    if (isAuctionActive == false) {
-                      auctionStatus = "Press + to start the auction";
-                    }
-
-                    String winningStatus = "Auction not started";
-                    if (isAuctionActive == true) {
-                      if (winning! == true) {
-                        winningStatus = "You are WINNING";
-                      } else {
-                        winningStatus = "You are LOSING";
-                      }
-                    }
-
                     return Column(
                       children: [
-                        Text("Auction status: \t$winningStatus",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        auctionStatusText(),
                         const SizedBox(height: 30),
-                        Text(auctionStatus,
-                          style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        remainingTimeText(),
                         const SizedBox(height: 30),
-                        Text("Tap + to bid $price\$!",
-                          style: const TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
+                        bidPriceText(),
                         const SizedBox(height: 20),
-                        CircleAvatar(
-                          radius: 40,
-                          child: IconButton(
-                            icon: const Icon(Icons.add),
-                            iconSize: 60,
-                            onPressed: () {
-                              price++;
-                              addBidToServer(widget.email, widget.songId, widget.lyricIndex, price);
-                            },
-                          ),
-                        ),
+                        bidButton(),
                       ],
                     );
                   }
@@ -246,6 +161,102 @@ class _LyricScreenState extends State<LyricScreen> {
       ),
     );
   }
+
+  Widget bidButton() => CircleAvatar(
+    radius: 40,
+    child: IconButton(
+      icon: const Icon(Icons.add),
+      iconSize: 60,
+      onPressed: () {
+        price++;
+        addBidToServer(widget.email, widget.songId, widget.lyricIndex, price);
+      },
+    ),
+  );
+
+  Widget bidPriceText() => Text("Tap + to bid $price\$!",
+    style: const TextStyle(
+      fontSize: 20,
+      color: Colors.black,
+    ),
+    textAlign: TextAlign.center,
+  );
+
+  Widget remainingTimeText() {
+    String remainingTime = "00:$seconds seconds remaining";
+    if (isAuctionActive == false) {
+      remainingTime = "Press + to start the auction";
+    }
+
+    return Text(remainingTime,
+      style: const TextStyle(
+        fontSize: 20,
+        color: Colors.black,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget auctionStatusText() {
+    String winningStatus = "Auction not started";
+    if (isAuctionActive == true) {
+      if (winning! == true) {
+        winningStatus = "You are WINNING";
+      } else {
+        winningStatus = "You are LOSING";
+      }
+    }
+    return Text("Auction status: \t$winningStatus",
+      style: const TextStyle(
+        fontSize: 20,
+        color: Colors.black,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget NFTLinkText(link) => InkWell(
+    child: Text(
+      'NFT Link:\n$link\nTap to open in OpenSea!',
+      style: const TextStyle(
+        fontSize: 18,
+        color: Colors.black,
+      ),
+      textAlign: TextAlign.center,
+    ),
+    onTap: () async {
+      launchUrlFromText(link);
+    },
+  );
+
+  Widget ownerText(email) {
+    String lyricOwner = 'Owner: $email';
+    if (email == widget.email) {
+      lyricOwner = "You are the happy owner of this lyric!";
+    }
+
+    return Text(
+      lyricOwner,
+      style: const TextStyle(
+        fontSize: 18,
+        color: Colors.black,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  Widget tokenNumberText() => FutureBuilder<int>(
+    future: blockchainController.getTokenCounter(),
+    builder: (context, snapshot) {
+      if (snapshot.hasData) {
+        blockchainController.tokenCounter = snapshot.data!;
+        return Text('${blockchainController.tokenCounter} minted tokens until now');
+      } else {
+        return const Text('\nToken number: ...');
+      }
+    },
+  );
+
 }
 
 

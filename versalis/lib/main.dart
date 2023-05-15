@@ -70,15 +70,7 @@ class LogIn extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 200),
-              MaterialButton(
-                onPressed: () {
-                  _googleSignIn.signIn().then((value) {
-                  addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen(userEmail: value!.email!)));
-                  });
-                },
-                child: Image.asset('assets/images/google.png', width: 400,),
-              ),
+              logInGoogleButton(context),
             ],
           ),
         ),
@@ -86,6 +78,18 @@ class LogIn extends StatelessWidget {
     );
   }
 
+  Widget logInGoogleButton(context) => MaterialButton(
+        onPressed: () {
+          _googleSignIn.signIn().then((value) {
+            addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => SuccessScreen(userEmail: value!.email!)));
+          });
+        },
+        child: Image.asset(
+          'assets/images/google.png',
+          width: 400,
+        ),
+  );
 }
 
 
@@ -129,36 +133,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     ),
                   ),
                 ),
-                StreamBuilder<List<Song>>(
-                    stream: readSongs(),
-                  builder: (context, snapshot) {
-                      if (snapshot.hasError) {
-                        return Text("Something went wrong ${snapshot.error}");
-                      } else if (snapshot.hasData) {
-                          final songs = snapshot.data!;
-                          return ListView(
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            primary: false,
-                            children: songs.map(buildSong).toList(),
-                          );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                  }
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: MaterialButton(
-                      onPressed: () {
-                        _googleSignIn.disconnect().then((value) => {});
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
-                      },
-                      child: Image.asset('assets/images/google_out.png', width: 400,),
-                    ),
-                  ),
-                ),
+                listOfSongsWidget(context),
+                logOutGoogleButton(context),
               ],
             ),
           ),
@@ -167,7 +143,39 @@ class _SuccessScreenState extends State<SuccessScreen> {
     );
   }
 
-  Widget buildSong(Song song) => ListTile(
+  Widget listOfSongsWidget(context) => StreamBuilder<List<Song>>(
+      stream: readSongs(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text("Something went wrong ${snapshot.error}");
+        } else if (snapshot.hasData) {
+          final songs = snapshot.data!;
+          return ListView(
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            primary: false,
+            children: songs.map(songTile).toList(),
+          );
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      }
+  );
+
+  Widget logOutGoogleButton(context) => Expanded(
+    child: Align(
+      alignment: Alignment.bottomCenter,
+      child: MaterialButton(
+        onPressed: () {
+          _googleSignIn.disconnect().then((value) => {});
+          Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
+        },
+        child: Image.asset('assets/images/google_out.png', width: 400,),
+      ),
+    ),
+  );
+
+  Widget songTile(Song song) => ListTile(
     title: Text(song.title,
       style: const TextStyle(
         fontSize: 20,
