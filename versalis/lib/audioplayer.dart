@@ -151,21 +151,28 @@ class _AudioplayerState extends State<Audioplayer> {
     ),
   );
 
-  Widget lyricTile(item, index) => ListTile(
-    title: Text(item),
-    onTap: () {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => LyricScreen(
-                lyric: item,
-                email: widget.email,
-                songId: widget.song.id,
-                lyricIndex: index,
-              )
-          )
-      );
-    },
+  Widget lyricTile(item, index) => Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: ListTile(
+      title: Text(item),
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => LyricScreen(
+                  lyric: item,
+                  email: widget.email,
+                  songId: widget.song.id,
+                  lyricIndex: index,
+                )
+            )
+        );
+      },
+      shape: RoundedRectangleBorder(
+        side: const BorderSide(color: Colors.green, width: 0.5),
+        borderRadius: BorderRadius.circular(10),
+      ),
+    ),
   );
 
   Widget listOfLyrics() => ListView.builder(

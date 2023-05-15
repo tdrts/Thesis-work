@@ -192,6 +192,7 @@ class _LyricScreenState extends State<LyricScreen> {
       style: const TextStyle(
         fontSize: 20,
         color: Colors.black,
+        backgroundColor: Color.fromRGBO(245, 51, 61, 0.5),
       ),
       textAlign: TextAlign.center,
     );
@@ -210,6 +211,7 @@ class _LyricScreenState extends State<LyricScreen> {
       style: const TextStyle(
         fontSize: 20,
         color: Colors.black,
+        backgroundColor: Color.fromRGBO(245, 224, 166, 0.7),
       ),
       textAlign: TextAlign.center,
     );
@@ -221,6 +223,7 @@ class _LyricScreenState extends State<LyricScreen> {
       style: const TextStyle(
         fontSize: 18,
         color: Colors.black,
+        backgroundColor: Color.fromRGBO(166, 228, 245, 0.5),
       ),
       textAlign: TextAlign.center,
     ),
@@ -240,6 +243,7 @@ class _LyricScreenState extends State<LyricScreen> {
       style: const TextStyle(
         fontSize: 18,
         color: Colors.black,
+        backgroundColor: Color.fromRGBO(76, 175, 80, 0.5),
       ),
       textAlign: TextAlign.center,
     );
