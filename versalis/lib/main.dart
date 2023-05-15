@@ -1,12 +1,12 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:versalis/Model/user.dart';
 import 'package:versalis/audioplayer.dart';
 import 'package:versalis/Model/song.dart';
 import 'package:versalis/Service/blockchainController.dart';
+
+import 'Service/utils.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -73,7 +73,6 @@ class LogIn extends StatelessWidget {
               MaterialButton(
                 onPressed: () {
                   _googleSignIn.signIn().then((value) {
-                  //             //addSongsToServer(); //to use only when adding new songs to the db
                   addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
                   Navigator.push(context, MaterialPageRoute(builder: (context)=> SuccessScreen(userEmail: value!.email!)));
                   });
@@ -89,26 +88,6 @@ class LogIn extends StatelessWidget {
 
 }
 
-Future<void> addUserToServer({required String email, required String name, required String photo}) async {
-  final docUser = FirebaseFirestore.instance.collection('users').doc(email);
-  final user = User(email, name, photo);
-
-  final json = user.toJson();
-  await docUser.set(json);
-  print('${user} logged in succesfully');
-}
-
-Future<void> addSongsToServer() async {
-  final docUser = FirebaseFirestore.instance.collection('songs').doc("song0");
-
-  final Song song1 = Song(docUser.id,'Coffee for Your Head', 'Powfu', 'artwork": "https://samplesongs.netlify.app/album-arts/death-bed.jpg', 'https://samplesongs.netlify.app/Death%20Bed.mp3',
-      ["Don't stay awake for too long, don't go to bed",
-        "I'll make a cup of coffee for your head",
-      ]
-  );
-  final json = song1.toJson();
-  await docUser.set(json);
-}
 
 class SuccessScreen extends StatefulWidget {
   SuccessScreen({Key? key, required this.userEmail}) : super(key: key);
@@ -154,11 +133,9 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     stream: readSongs(),
                   builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        print(snapshot.error);
                         return Text("Something went wrong ${snapshot.error}");
                       } else if (snapshot.hasData) {
                           final songs = snapshot.data!;
-
                           return ListView(
                             scrollDirection: Axis.vertical,
                             shrinkWrap: true,
@@ -175,7 +152,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     alignment: Alignment.bottomCenter,
                     child: MaterialButton(
                       onPressed: () {
-                        _googleSignIn.disconnect().then((value) => print("Logged out"));
+                        _googleSignIn.disconnect().then((value) => {});
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
                       },
                       child: Image.asset('assets/images/google_out.png', width: 400,),
@@ -205,10 +182,6 @@ class _SuccessScreenState extends State<SuccessScreen> {
       ),),
     onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
   );
-  
 }
 
-Stream<List<Song>> readSongs() => FirebaseFirestore.instance.collection('songs')
-    .snapshots()
-    .map((snapshot) =>
-    snapshot.docs.map((doc) => Song.fromJson(doc.data())).toList());
+

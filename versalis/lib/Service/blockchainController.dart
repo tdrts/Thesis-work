@@ -17,9 +17,6 @@ class BlockchainController {
   Uint8List? mintedImage;
   int mintedCircleNo = 0;
 
-  // using a factory is important
-  // because it promises to return _an_ object of this type
-  // but it doesn't promise to make a new one.
   factory BlockchainController() {
     return _instance;
   }
@@ -27,9 +24,6 @@ class BlockchainController {
   static BlockchainController get instance => _instance;
 
 
-  // This named constructor is the "real" constructor
-  // It'll be called exactly once, by the static property assignment above
-  // it's also private, so it can only be called in this class
   BlockchainController._internal() {
     // initialization logic
     final ALCHEMY_KEY = dotenv.env['ALCHEMY_KEY_TEST'];
@@ -40,17 +34,12 @@ class BlockchainController {
     polygonClient = Web3Client(ALCHEMY_KEY!, httpClient);
   }
 
-  // rest of class as normal, for example:
-
   Future<String> mintStream(String params) async {
-    print("begin mint");
     final WALLET_PRIVATE_KEY = dotenv.env['WALLET_PRIVATE_KEY'];
 
     EthPrivateKey credential = EthPrivateKey.fromHex(WALLET_PRIVATE_KEY!);
     DeployedContract contract = await getContract();
     ContractFunction function = contract.function('mint');
-    print("after chose mint");
-    print(params);
 
     var results = await Future.wait([
       polygonClient.sendTransaction(
@@ -64,9 +53,6 @@ class BlockchainController {
         chainId: null,
       ),
     ]);
-    print("after future");
-    print("results[0]=");
-    print(results[0]);
     return results[0];
   }
 
@@ -97,7 +83,7 @@ class BlockchainController {
     }
   }
 
-  Future<int> gettokenCounter() async {
+  Future<int> getTokenCounter() async {
     List<dynamic> result = await query('tokenCounter', []);
       return int.parse(result[0].toString());
   }

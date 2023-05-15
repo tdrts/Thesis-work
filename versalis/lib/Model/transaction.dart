@@ -3,7 +3,7 @@ class TransactionLyric{
   String userEmail;
   String songId;
   int lyricIndex;
-  int price = 5;
+  int price;
   String link;
 
   TransactionLyric(this.id, this.userEmail, this.songId, this.lyricIndex, this.price, this.link);

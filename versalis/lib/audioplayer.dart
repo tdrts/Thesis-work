@@ -1,10 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/song.dart';
 
-import 'Model/transaction.dart';
 import 'lyricScreen.dart';
 
 class Audioplayer extends StatefulWidget {
@@ -160,7 +158,9 @@ class _AudioplayerState extends State<Audioplayer> {
                                   email: widget.email,
                                   songId: widget.song.id,
                                   lyricIndex: index,
-                              )));
+                              )
+                          )
+                      );
                     },
                   );
                 },
