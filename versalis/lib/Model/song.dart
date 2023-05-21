@@ -5,8 +5,9 @@ class Song{
   String artwork;
   String url;
   List<String> lyrics;
+  int listenCount;
 
-  Song(this.id, this.title, this.artist, this.artwork, this.url, this.lyrics);
+  Song(this.id, this.title, this.artist, this.artwork, this.url, this.lyrics, this.listenCount);
 
   Map<String, dynamic> toJson() => {
     'id' : id,
@@ -15,6 +16,7 @@ class Song{
     'artwork' : artwork,
     'url' : url,
     'lyrics' : lyrics,
+    'listenCount' : listenCount,
   };
 
   Song.fromJson(Map<String, dynamic> json) :
@@ -23,10 +25,11 @@ class Song{
     artist = json['artist'],
     artwork = json['artwork'],
     url = json['url'],
-    lyrics = List<String>.from(json['lyrics']).map((i) => i).toList();
+    lyrics = List<String>.from(json['lyrics']).map((i) => i).toList(),
+    listenCount = json['listenCount'];
 
   @override
   String toString() {
-    return 'Song{id: $id, title: $title, artist: $artist, artwork: $artwork, url: $url, lyrics: $lyrics}';
+    return 'Song{id: $id, title: $title, artist: $artist, artwork: $artwork, url: $url, lyrics: $lyrics, listenCount: $listenCount}';
   }
 }

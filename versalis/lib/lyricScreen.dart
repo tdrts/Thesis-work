@@ -105,10 +105,29 @@ class _LyricScreenState extends State<LyricScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.green,
+                Colors.teal,
+              ],
+            ),
+          ),
+        ),
         leading: BackButton(
           onPressed: () {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Audioplayer(song: widget.song, email: widget.email)));
           },
+        ),
+        title: const Text(
+          'Lyric Screen',
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline,
+            color: Colors.white,
+          ),
         ),
       ),
       body: Padding(
@@ -176,7 +195,7 @@ class _LyricScreenState extends State<LyricScreen> {
     ),
   );
 
-  Widget bidPriceText() => Text("Tap + to bid $price\$!",
+  Widget bidPriceText() => Text("Tap + to bid \$$price!",
     style: const TextStyle(
       fontSize: 20,
       color: Colors.black,
@@ -262,7 +281,6 @@ class _LyricScreenState extends State<LyricScreen> {
       }
     },
   );
-
 }
 
 

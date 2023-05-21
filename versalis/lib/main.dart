@@ -64,7 +64,7 @@ class LogIn extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const Text(
-                'Support Your Artist',
+                'Support Your Artists',
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.white,
@@ -135,12 +135,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   ),
                 ),
                 listOfSongsWidget(context),
-                MaterialButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatisticsScreen()));
-                  },
-                  child: Text("See statistics"),
-                ),
+                statisticsButton(),
                 logOutGoogleButton(context),
               ],
             ),
@@ -150,8 +145,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
     );
   }
 
-  Widget listOfSongsWidget(context) => StreamBuilder<List<Song>>(
-      stream: readSongs(),
+  Widget listOfSongsWidget(context) => FutureBuilder<List<Song>>(
+      future: sortSongsByRatioBetweenListensAndLyricsBought(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text("Something went wrong ${snapshot.error}");
@@ -182,6 +177,22 @@ class _SuccessScreenState extends State<SuccessScreen> {
     ),
   );
 
+  Widget statisticsButton() => MaterialButton(
+    onPressed: () {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const StatisticsScreen()));
+    },
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(5.0),
+    ),
+    color: Colors.white,
+    child: const Text("See statistics",
+      style: TextStyle(
+        fontSize: 16,
+        color: Color.fromRGBO(0, 0, 0, 0.54),
+      ),
+    ),
+  );
+
   Widget songTile(Song song) => FutureBuilder<int>(
     future: findIfAuctionInProgress(song.id),
     builder: (context, snapshot) {
@@ -207,7 +218,5 @@ class _SuccessScreenState extends State<SuccessScreen> {
     }
   );
 }
-
-//
 
 

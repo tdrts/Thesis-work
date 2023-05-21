@@ -10,7 +10,6 @@ import 'blockchainController.dart';
 
 final blockchainController = BlockchainController.instance;
 
-
 //after an auction is finished, add the transaction to server
 Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price}) async {
 
@@ -111,15 +110,13 @@ Future<void> addSongsToServer() async {
   final Song song1 = Song(docUser.id,'Coffee for Your Head', 'Powfu', 'artwork": "https://samplesongs.netlify.app/album-arts/death-bed.jpg', 'https://samplesongs.netlify.app/Death%20Bed.mp3',
       ["Don't stay awake for too long, don't go to bed",
         "I'll make a cup of coffee for your head",
-      ]
+      ], 0
   );
   final json = song1.toJson();
   await docUser.set(json);
 }
 
-//FUNCTIONS FOR STATISTICS
-// lyric with the highest price
-
+// get lyric with the highest price
 Future<String> getLyricWithHighestPrice() async {
   return FirebaseFirestore.instance
       .collection('lyricsTransactions')
@@ -133,36 +130,13 @@ Future<String> getLyricWithHighestPrice() async {
       var current = TransactionLyric.fromJson(event.docs[0].data());
 
       Song song =  await getSongWithId(current.songId);
-      return "${song.lyrics[current.lyricIndex]} from ${song.title} by ${song.artist} with ${current.price}\$";
+      return "\"${song.lyrics[current.lyricIndex]}\"\n${song.artist} - ${song.title}\n\$${current.price}";
     }
   });
 }
 
-// Future<Map<String, dynamic>> getLyricWithHighestPrice() async {
-//   var transaction = await getTransactionLyricWithHighestPrice();
-//
-//   return FirebaseFirestore.instance
-//       .collection('songs')
-//       .where("id", isEqualTo: transaction!.songId)
-//       .get()
-//       .then((event) {
-//     if (event.docs.isEmpty) {
-//       return {};
-//     } else {
-//       var current = Song.fromJson(event.docs[0].data());
-//       return {'lyric': current.lyrics[transaction.lyricIndex], 'songTitle': current.title, 'artist' : current.artist,'price' : transaction.price};
-//     }
-//   });
-// }
-
-// Future<String> getLyricWithHighestPriceAsString() async {
-//   var result = await getLyricWithHighestPrice();
-//   return result['lyric'] + " from " + result['songTitle'] + " by " + result['artist'] + ' with ${result['price']} \$';
-// }
-
-
-//lyric with most numbers of unique bidders
-Future<String> findLyricWithHighestNoBidders() async {
+// get lyric with most numbers of unique bidders
+Future<String> getLyricWithHighestNoBidders() async {
   final collectionRef = FirebaseFirestore.instance.collection('auctionItems');
   final snapshot = await collectionRef.get();
 
@@ -195,37 +169,11 @@ Future<String> findLyricWithHighestNoBidders() async {
   }
 
   Song current =  await getSongWithId(songId);
-  return "${current.lyrics[lyricIndex]} from ${current.title} by ${current.artist} with $maxUserEmailCount bidders";
+  return "\"${current.lyrics[lyricIndex]}\"\n${current.artist} - ${current.title}\n$maxUserEmailCount bidders";
 }
 
-// Future<Map<String, dynamic>> getLyricWithHighestNoBidders() async {
-//   var json = await findLyricDataWithHighestNoBidders();
-//   String songId = json['songId'];
-//   int lyricIndex = json['lyricIndex'];
-//   int noBidders = json['userEmailCount'];
-//
-//   return FirebaseFirestore.instance
-//       .collection('songs')
-//       .where("id", isEqualTo: songId)
-//       .get()
-//       .then((event) {
-//     if (event.docs.isEmpty) {
-//       return {};
-//     } else {
-//       var current = Song.fromJson(event.docs[0].data());
-//       return {'lyric': current.lyrics[lyricIndex], 'songTitle': current.title, 'artist' : current.artist, 'noBidders' : noBidders};
-//     }
-//   });
-// }
-//
-// Future<String> getLyricWithHighestNoBiddersAsString() async {
-//   var result = await getLyricWithHighestNoBidders();
-//   return result['lyric'] + " from " + result['songTitle'] + " by " + result['artist'] + ' with ${result['noBidders']} bidders';
-// }
-
-
-// song with most lyrics bought
-Future<String> getMostTransactedSong() async {
+// get song with the most lyrics bought
+Future<String> getSongWithHighestNoLyricsBought() async {
   final collectionRef = FirebaseFirestore.instance.collection('lyricsTransactions');
   final snapshot = await collectionRef.get();
 
@@ -253,43 +201,55 @@ Future<String> getMostTransactedSong() async {
   songTransactionCounts[a]! > songTransactionCounts[b]! ? a : b);
 
   Song current =  await getSongWithId(mostTransactedSongId);
-  return "${current.title} by ${current.artist} with ${songTransactionCounts[mostTransactedSongId]!} lyrics bought";
+  return "${current.artist} - ${current.title}\n${songTransactionCounts[mostTransactedSongId]!} lyrics bought";
 }
 
-// Future<Map<String, dynamic>> getMostTransactedSongData() async {
-//   var json = await getMostTransactedSongId();
-//   String songId = json['songId'];
-//   int count = json['count'];
-//
-//   return FirebaseFirestore.instance
-//       .collection('songs')
-//       .where("id", isEqualTo: songId)
-//       .get()
-//       .then((event) {
-//     if (event.docs.isEmpty) {
-//       return {};
-//     } else {
-//       var current = Song.fromJson(event.docs[0].data());
-//       return {'songTitle': current.title, 'artist' : current.artist, 'count' : count};
-//     }
-//   });
-// }
+// get artist with the most lyrics bought
+Future<String> getArtistWithHighestNoLyricsBought() async {
+  final songsSnapshot = await FirebaseFirestore.instance.collection('songs').get();
+  Map<String, int> artistLyricsBought = {};
 
-// Future<String> getMostTransactedSongDataAsString() async {
-//   var result = await getMostTransactedSongData();
-//   return result['songTitle'] + " by " + result['artist'] + ' with ${result['count']} lyrics bought';
-// }
+  for (var doc in songsSnapshot.docs) {
+    final song = Song(
+      doc.id,
+      doc['title'] as String,
+      doc['artist'] as String,
+      doc['artwork'] as String,
+      doc['url'] as String,
+      List<String>.from(doc['lyrics']),
+      doc['listenCount'] as int,
+    );
 
+    final lyricsBought = await getNoLyricsBoughtForSong(song.id);
+    final artist = song.artist;
+
+    if (artistLyricsBought.containsKey(artist)) {
+      artistLyricsBought[artist] = artistLyricsBought[artist]! + lyricsBought;
+    } else {
+      artistLyricsBought[artist] = lyricsBought;
+    }
+  }
+
+  String artistWithHighestLyricsBought = '';
+
+  artistLyricsBought.forEach((artist, lyricsBought) {
+    if (artistWithHighestLyricsBought.isEmpty || lyricsBought > artistLyricsBought[artistWithHighestLyricsBought]!) {
+      artistWithHighestLyricsBought = artist;
+    }
+  });
+
+  return "$artistWithHighestLyricsBought\n${artistLyricsBought[artistWithHighestLyricsBought]!} lyrics bought";
+}
 
 // number of auctions in progress
-Future<int> getNoAuctionsInProgress() async {
+Future<String> getNoAuctionsInProgress() async {
   var auctions = FirebaseFirestore.instance.collection('auctionItems');
   final snapshotAuctions = await auctions.get();
 
   var transactions = FirebaseFirestore.instance.collection('lyricsTransactions');
   final snapshotTrans = await transactions.get();
 
-  return snapshotAuctions.size - snapshotTrans.size;
+  return Future.value((snapshotAuctions.size - snapshotTrans.size).toString());
 }
 
 // find songs in the auction process
@@ -317,4 +277,41 @@ Future<int> findIfLyricInProgress(String songId, int index) async {
 // get song from song_id
 Future<Song> getSongWithId(String id) {
   return FirebaseFirestore.instance.collection('songs').where("id", isEqualTo: id).get().then((value) => Song.fromJson(value.docs[0].data()));
+}
+
+// increment listenCount
+void incrementListCount(songId) async {
+  await FirebaseFirestore.instance.collection('songs').doc(songId).update({"listenCount": FieldValue.increment(1)});
+}
+
+// get number of lyrics bought for a song
+Future<int> getNoLyricsBoughtForSong(String songId) async {
+  var transactions = FirebaseFirestore.instance.collection('lyricsTransactions').where("songId", isEqualTo: songId);
+  final snapshotTrans = await transactions.get();
+
+  return snapshotTrans.size;
+}
+
+// sort songs descending by the ratio between listenCount/ lyricsBought
+Future<List<Song>> sortSongsByRatioBetweenListensAndLyricsBought() async {
+  final songsSnapshot = await FirebaseFirestore.instance.collection('songs').get();
+  final songs = songsSnapshot.docs.map((doc) => Song.fromJson(doc.data())).toList();
+
+  final sortedSongs = await Future.wait(songs.map((song) async {
+    var lyricsBought = await getNoLyricsBoughtForSong(song.id);
+    if (lyricsBought == 0) {
+      lyricsBought = 1;
+    }
+    final ratio = song.listenCount / lyricsBought;
+    return {'song': song, 'ratio': ratio};
+  }));
+
+  sortedSongs.sort((a, b) {
+    final ratioA = a['ratio'] as double;
+    final ratioB = b['ratio'] as double;
+
+    return ratioB.compareTo(ratioA);
+  });
+
+  return sortedSongs.map((item) => item['song'] as Song).toList();
 }

@@ -72,10 +72,29 @@ class _AudioplayerState extends State<Audioplayer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Colors.green,
+                Colors.teal,
+              ],
+            ),
+          ),
+        ),
         leading: BackButton(
           onPressed: () {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SuccessScreen(userEmail: widget.email)));
           },
+        ),
+        title: Text(
+          widget.song.title,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            decoration: TextDecoration.underline,
+            color: Colors.white,
+          ),
         ),
       ),
       body: Padding(
@@ -148,6 +167,7 @@ class _AudioplayerState extends State<Audioplayer> {
           await audioPlayer.pause();
         } else {
           await audioPlayer.play(UrlSource(widget.song.url));
+          incrementListCount(widget.song.id);
         }
       },
     ),
