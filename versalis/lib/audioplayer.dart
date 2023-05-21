@@ -3,7 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/song.dart';
 
+import 'Service/utils.dart';
 import 'lyricScreen.dart';
+import 'main.dart';
 
 class Audioplayer extends StatefulWidget {
   const Audioplayer({Key? key, required this.song, required this.email})
@@ -72,7 +74,7 @@ class _AudioplayerState extends State<Audioplayer> {
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SuccessScreen(userEmail: widget.email)));
           },
         ),
       ),
@@ -153,25 +155,34 @@ class _AudioplayerState extends State<Audioplayer> {
 
   Widget lyricTile(item, index) => Padding(
     padding: const EdgeInsets.all(8.0),
-    child: ListTile(
-      title: Text(item),
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => LyricScreen(
-                  lyric: item,
-                  email: widget.email,
-                  songId: widget.song.id,
-                  lyricIndex: index,
+    child: FutureBuilder<int>(
+      future: findIfLyricInProgress(widget.song.id, index),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData){
+          return const CircularProgressIndicator();
+        }
+        return ListTile(
+          title: Text(item),
+          leading: snapshot.data! == 0 ? const Icon(null) : const Icon(Icons.timer_sharp),
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => LyricScreen(
+                      lyric: item,
+                      email: widget.email,
+                      song: widget.song,
+                      lyricIndex: index,
+                    )
                 )
-            )
+            );
+          },
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(color: Colors.green, width: 0.5),
+            borderRadius: BorderRadius.circular(10),
+          ),
         );
-      },
-      shape: RoundedRectangleBorder(
-        side: const BorderSide(color: Colors.green, width: 0.5),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      }
     ),
   );
 

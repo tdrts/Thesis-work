@@ -5,13 +5,15 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/auctionitem.dart';
 import 'package:versalis/Model/transaction.dart';
+import 'package:versalis/audioplayer.dart';
 
+import 'Model/song.dart';
 import 'Service/blockchainController.dart';
 
 import 'Service/utils.dart';
 
 //length of the auction
-const SECONDS = 10;
+const SECONDS = 20;
 
 //length bid price
 const INITIAL_PRICE = 5;
@@ -20,17 +22,17 @@ const INITIAL_PRICE = 5;
 final blockchainController = BlockchainController.instance;
 
 class LyricScreen extends StatefulWidget {
-  const LyricScreen({
+  LyricScreen({
     Key? key,
     required this.lyric,
     required this.email,
-    required this.songId,
+    required this.song,
     required this.lyricIndex,
   }) : super(key: key);
 
   final String lyric;
   final String email;
-  final String songId;
+  final Song song;
   final int lyricIndex;
 
   @override
@@ -51,7 +53,7 @@ class _LyricScreenState extends State<LyricScreen> {
     timer = Timer.periodic(const Duration(seconds: 1) ,(timer){
       FirebaseFirestore.instance
           .collection('auctionItems')
-          .where("songId", isEqualTo: widget.songId)
+          .where("songId", isEqualTo: widget.song.id)
           .where("lyricIndex", isEqualTo: widget.lyricIndex)
           .get().then ((event) {
         if (event.docs.isNotEmpty){
@@ -82,7 +84,7 @@ class _LyricScreenState extends State<LyricScreen> {
     if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
       int winnerPrice = item!.biddings.last.price;
 
-      addTransactionToServer(userEmail: item!.biddings.last.userEmail, songId: widget.songId, lyricIndex: widget.lyricIndex, price : winnerPrice,)
+      addTransactionToServer(userEmail: item!.biddings.last.userEmail, songId: widget.song.id, lyricIndex: widget.lyricIndex, price : winnerPrice,)
           .then((value){
         setState(() {});
       });
@@ -105,7 +107,7 @@ class _LyricScreenState extends State<LyricScreen> {
       appBar: AppBar(
         leading: BackButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Audioplayer(song: widget.song, email: widget.email)));
           },
         ),
       ),
@@ -125,7 +127,7 @@ class _LyricScreenState extends State<LyricScreen> {
             ),
             const SizedBox(height: 80),
             FutureBuilder<TransactionLyric?>(
-              future: checkIfLyricsWasBought(widget.songId, widget.lyricIndex),
+              future: checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
               builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
 
                 if (snapshot.connectionState == ConnectionState.done) {
@@ -169,7 +171,7 @@ class _LyricScreenState extends State<LyricScreen> {
       iconSize: 60,
       onPressed: () {
         price++;
-        addBidToServer(widget.email, widget.songId, widget.lyricIndex, price);
+        addBidToServer(widget.email, widget.song.id, widget.lyricIndex, price);
       },
     ),
   );

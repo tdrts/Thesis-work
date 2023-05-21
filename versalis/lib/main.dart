@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:versalis/audioplayer.dart';
 import 'package:versalis/Model/song.dart';
 import 'package:versalis/Service/blockchainController.dart';
+import 'package:versalis/statisticsScreen.dart';
 
 import 'Service/utils.dart';
 
@@ -134,6 +135,12 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   ),
                 ),
                 listOfSongsWidget(context),
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => StatisticsScreen()));
+                  },
+                  child: Text("See statistics"),
+                ),
                 logOutGoogleButton(context),
               ],
             ),
@@ -170,26 +177,37 @@ class _SuccessScreenState extends State<SuccessScreen> {
           _googleSignIn.disconnect().then((value) => {});
           Navigator.push(context, MaterialPageRoute(builder: (context)=> LogIn()));
         },
-        child: Image.asset('assets/images/google_out.png', width: 400,),
+        child: Image.asset('assets/images/google_out.png', width: 200,),
       ),
     ),
   );
 
-  Widget songTile(Song song) => ListTile(
-    title: Text(song.title,
-      style: const TextStyle(
-        fontSize: 20,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-    subtitle: Text(song.artist,
-      style: const TextStyle(
-        fontSize: 16,
-        color: Colors.white,
-      ),),
-    onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
+  Widget songTile(Song song) => FutureBuilder<int>(
+    future: findIfAuctionInProgress(song.id),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData){
+        return const CircularProgressIndicator();
+      }
+      return ListTile(
+        title: Text(song.title,
+          style: const TextStyle(
+            fontSize: 20,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: snapshot.data! == 0 ? const Icon(Icons.music_note) : const Icon(Icons.timer_sharp),
+        subtitle: Text(song.artist,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),),
+        onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
+      );
+    }
   );
 }
+
+//
 
 

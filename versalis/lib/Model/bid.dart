@@ -15,4 +15,9 @@ class Bid {
         userEmail = json['userEmail'],
         price = json['price'],
         time = DateTime.parse(json['time']);
+
+  @override
+  String toString() {
+    return 'Bid{userEmail: $userEmail, price: $price, time: $time}';
+  }
 }
