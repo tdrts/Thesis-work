@@ -13,6 +13,7 @@ void main() {
         'test_artwork.png',
         'test_url.mp3',
         ['Verse 1', 'Chorus', 'Verse 2'],
+        0
       );
       expect(song.toJson(), equals({
         'id' : '1',
@@ -21,6 +22,7 @@ void main() {
         'artwork' : 'test_artwork.png',
         'url' : 'test_url.mp3',
         'lyrics' : ['Verse 1', 'Chorus', 'Verse 2'],
+        'listenCount' : 0,
       }));
     });
 
@@ -67,6 +69,7 @@ void main() {
         'artwork' : 'test_artwork.png',
         'url' : 'test_url.mp3',
         'lyrics' : ['Verse 1', 'Chorus', 'Verse 2'],
+        'listenCount' : 0,
       };
       final song = Song.fromJson(songJson);
       expect(song.id, equals('1'));
@@ -75,6 +78,7 @@ void main() {
       expect(song.artwork, equals('test_artwork.png'));
       expect(song.url, equals('test_url.mp3'));
       expect(song.lyrics, equals(['Verse 1', 'Chorus', 'Verse 2']));
+      expect(song.listenCount, equals(0));
     });
   });
 

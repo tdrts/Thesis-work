@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Model/auctionitem.dart';
 import 'package:versalis/Model/transaction.dart';
-import 'package:versalis/audioplayer.dart';
+import 'package:versalis/View/audioplayerScreen.dart';
 
-import 'Model/song.dart';
-import 'Service/blockchainController.dart';
+import '../Model/song.dart';
+import '../Service/blockchainController.dart';
 
-import 'Service/utils.dart';
+import '../Service/utils.dart';
 
 //length of the auction
 const SECONDS = 20;
@@ -132,54 +132,60 @@ class _LyricScreenState extends State<LyricScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            tokenNumberText(),
-            Text(
-              '"${widget.lyric}"',
-              style: const TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.bold,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              tokenNumberText(),
+              Text(
+                '"${widget.lyric}"',
+                style: const TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 80),
-            FutureBuilder<TransactionLyric?>(
-              future: checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
-              builder: (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
-
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    timer?.cancel();
-                    return Column(
-                      children: [
-                        ownerText(snapshot.data!.userEmail),
-                        const SizedBox(height: 40),
-                        NFTLinkText(snapshot.data!.link),
-                      ],
-                    );
-                  } else {
-                    return Column(
-                      children: [
-                        auctionStatusText(),
-                        const SizedBox(height: 30),
-                        remainingTimeText(),
-                        const SizedBox(height: 30),
-                        bidPriceText(),
-                        const SizedBox(height: 20),
-                        bidButton(),
-                      ],
-                    );
-                  }
-                } else {
-                  return const Center(child: CircularProgressIndicator());
-                }
-              },
-            ),
-          ],
+              const SizedBox(height: 80),
+              checkIfLyricBought(),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  FutureBuilder<TransactionLyric?> checkIfLyricBought() {
+    return FutureBuilder<TransactionLyric?>(
+      future: checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
+      builder:
+          (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData && snapshot.data != null) {
+            timer?.cancel();
+            return Column(
+              children: [
+                ownerText(snapshot.data!.userEmail),
+                const SizedBox(height: 40),
+                NFTLinkText(snapshot.data!.link),
+              ],
+            );
+          } else {
+            return Column(
+              children: [
+                auctionStatusText(),
+                const SizedBox(height: 30),
+                remainingTimeText(),
+                const SizedBox(height: 30),
+                bidPriceText(),
+                const SizedBox(height: 20),
+                bidButton(),
+              ],
+            );
+          }
+        } else {
+          return const Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 

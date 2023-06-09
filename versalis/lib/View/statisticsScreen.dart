@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'Service/utils.dart';
+import '../Service/utils.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
