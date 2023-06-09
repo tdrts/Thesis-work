@@ -4,7 +4,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:versalis/View/statisticsScreen.dart';
 
 import '../Model/song.dart';
-import '../Service/utils.dart';
+import '../Service/auctionService.dart';
+import '../Service/songService.dart';
+import '../serviceLocator.dart';
 import 'audioplayerScreen.dart';
 import 'loginScreen.dart';
 
@@ -19,6 +21,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final songService = getIt<SongService>();
+  final auctionService = getIt<AuctionService>();
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget listOfSongsWidget(context) => FutureBuilder<List<Song>>(
-      future: sortSongsByRatioBetweenListensAndLyricsBought(),
+      future: songService.sortSongsByRatioBetweenListensAndLyricsBought(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text("Something went wrong ${snapshot.error}");
@@ -109,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   Widget songTile(Song song) => FutureBuilder<int>(
-      future: findIfAuctionInProgress(song.id),
+      future: auctionService.findIfAuctionInProgress(song.id),
       builder: (context, snapshot) {
         if (!snapshot.hasData){
           return const CircularProgressIndicator();

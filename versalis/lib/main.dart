@@ -1,15 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:versalis/Service/blockchainController.dart';
+import 'package:versalis/Service/blockchainService.dart';
+import 'package:versalis/serviceLocator.dart';
 
 import 'View/loginScreen.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-  BlockchainController.instance;
+  BlockchainService.instance;
   await Firebase.initializeApp();
+  setup();
   runApp(const MyApp());
 }
 

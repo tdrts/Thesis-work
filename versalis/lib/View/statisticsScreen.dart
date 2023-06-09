@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../Service/utils.dart';
+import '../Service/auctionService.dart';
+import '../Service/songService.dart';
+import '../Service/transactionService.dart';
+import '../serviceLocator.dart';
+
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({Key? key}) : super(key: key);
@@ -11,6 +15,10 @@ class StatisticsScreen extends StatefulWidget {
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
+  final transactionService = getIt<TransactionService>();
+  final songService = getIt<SongService>();
+  final auctionService = getIt<AuctionService>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,15 +51,15 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       body: ListView(
         padding: const EdgeInsets.only(top: 30, bottom: 30, left: 15),
         children: [
-          statisticsTile("Number of auctions in progress", getNoAuctionsInProgress()),
+          statisticsTile("Number of auctions in progress", auctionService.getNoAuctionsInProgress()),
           const SizedBox(height: 30),
-          statisticsTile("Lyric with highest price", getLyricWithHighestPrice()),
+          statisticsTile("Lyric with highest price", transactionService.getLyricWithHighestPrice()),
           const SizedBox(height: 30),
-          statisticsTile("Lyric with highest number of unique bidders", getLyricWithHighestNoBidders()),
+          statisticsTile("Lyric with highest number of unique bidders", auctionService.getLyricWithHighestNoBidders()),
           const SizedBox(height: 30),
-          statisticsTile("Song with highest number of lyrics bought", getSongWithHighestNoLyricsBought()),
+          statisticsTile("Song with highest number of lyrics bought", transactionService.getSongWithHighestNoLyricsBought()),
           const SizedBox(height: 30),
-          statisticsTile("Artist with highest number of lyrics bought", getArtistWithHighestNoLyricsBought()),
+          statisticsTile("Artist with highest number of lyrics bought", songService.getArtistWithHighestNoLyricsBought()),
         ],
       ),
     );

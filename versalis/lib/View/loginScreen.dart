@@ -2,14 +2,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:versalis/Service/userService.dart';
 
-import '../Service/utils.dart';
+import '../serviceLocator.dart';
 import 'homeScreen.dart';
 
 class LogIn extends StatelessWidget {
   LogIn({Key? key}) : super(key: key);
 
   final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final userService = getIt<UserService>();
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class LogIn extends StatelessWidget {
   Widget logInGoogleButton(context) => MaterialButton(
     onPressed: () {
       _googleSignIn.signIn().then((value) {
-        addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
+        userService.addUserToServer(email: value!.email!, name: value!.displayName!, photo: value.photoUrl!);
         Navigator.push(context, MaterialPageRoute(builder: (context) => HomeScreen(userEmail: value!.email!)));
       });
     },

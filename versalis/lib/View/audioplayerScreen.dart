@@ -3,10 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Extensions/durationExt.dart';
 import 'package:versalis/Model/song.dart';
+import 'package:versalis/Service/auctionService.dart';
 
-import '../Service/utils.dart';
+import '../Service/songService.dart';
 import '../View/lyricScreen.dart';
 import '../main.dart';
+import '../serviceLocator.dart';
 import 'homeScreen.dart';
 
 class Audioplayer extends StatefulWidget {
@@ -24,10 +26,12 @@ class Audioplayer extends StatefulWidget {
 }
 
 class _AudioplayerState extends State<Audioplayer> {
+  final auctionService = getIt<AuctionService>();
   final audioPlayer = AudioPlayer();
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
+  final songService = getIt<SongService>();
 
   @override
   void initState() {
@@ -175,7 +179,7 @@ class _AudioplayerState extends State<Audioplayer> {
               await audioPlayer.pause();
             } else {
               await audioPlayer.play(UrlSource(widget.song.url));
-              incrementListCount(widget.song.id);
+              songService.incrementListCount(widget.song.id);
             }
           },
         ),
@@ -184,7 +188,7 @@ class _AudioplayerState extends State<Audioplayer> {
   Widget lyricTile(item, index) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder<int>(
-            future: findIfLyricInProgress(widget.song.id, index),
+            future: auctionService.findIfLyricInProgress(widget.song.id, index),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const CircularProgressIndicator();

@@ -4,8 +4,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:web3dart/web3dart.dart';
 
-class BlockchainController {
-  static BlockchainController _instance = BlockchainController._internal();
+class BlockchainService {
+  static BlockchainService _instance = BlockchainService._internal();
 
   String? CONTRACT_NAME ;
   String? CONTRACT_ADDRESS;
@@ -17,14 +17,14 @@ class BlockchainController {
   Uint8List? mintedImage;
   int mintedCircleNo = 0;
 
-  factory BlockchainController() {
+  factory BlockchainService() {
     return _instance;
   }
 
-  static BlockchainController get instance => _instance;
+  static BlockchainService get instance => _instance;
 
 
-  BlockchainController._internal() {
+  BlockchainService._internal() {
     // initialization logic
     final ALCHEMY_KEY = dotenv.env['ALCHEMY_KEY_TEST'];
     CONTRACT_NAME = dotenv.env['CONTRACT_NAME'];

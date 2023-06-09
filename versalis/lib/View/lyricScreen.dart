@@ -3,14 +3,17 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:versalis/Model/auctionitem.dart';
 import 'package:versalis/Model/transaction.dart';
+import 'package:versalis/Service/auctionService.dart';
 import 'package:versalis/View/audioplayerScreen.dart';
 
 import '../Model/song.dart';
-import '../Service/blockchainController.dart';
+import '../Service/blockchainService.dart';
 
-import '../Service/utils.dart';
+import '../Service/transactionService.dart';
+import '../serviceLocator.dart';
 
 //length of the auction
 const SECONDS = 20;
@@ -19,7 +22,8 @@ const SECONDS = 20;
 const INITIAL_PRICE = 5;
 
 //singleton for blockchainController
-final blockchainController = BlockchainController.instance;
+final blockchainController = BlockchainService.instance;
+final transactionService = getIt<TransactionService>();
 
 class LyricScreen extends StatefulWidget {
   LyricScreen({
@@ -41,6 +45,7 @@ class LyricScreen extends StatefulWidget {
 
 class _LyricScreenState extends State<LyricScreen> {
 
+  final auctionService = getIt<AuctionService>();
   AuctionItem? item;
   Timer? timer;
   int seconds = SECONDS;
@@ -60,7 +65,9 @@ class _LyricScreenState extends State<LyricScreen> {
           isAuctionActive = true;
 
           setState(() {
-            item = AuctionItem.fromJson(event.docs[0].data());
+            if (item != AuctionItem.fromJson(event.docs[0].data())){
+              item = AuctionItem.fromJson(event.docs[0].data());
+            }
             seconds--;
           });
 
@@ -84,7 +91,7 @@ class _LyricScreenState extends State<LyricScreen> {
     if (item!.biddings.last.time.add(const Duration(seconds: SECONDS)).isBefore(DateTime.now())){
       int winnerPrice = item!.biddings.last.price;
 
-      addTransactionToServer(userEmail: item!.biddings.last.userEmail, songId: widget.song.id, lyricIndex: widget.lyricIndex, price : winnerPrice,)
+      transactionService.addTransactionToServer(userEmail: item!.biddings.last.userEmail, songId: widget.song.id, lyricIndex: widget.lyricIndex, price : winnerPrice,)
           .then((value){
         setState(() {});
       });
@@ -156,7 +163,7 @@ class _LyricScreenState extends State<LyricScreen> {
 
   FutureBuilder<TransactionLyric?> checkIfLyricBought() {
     return FutureBuilder<TransactionLyric?>(
-      future: checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
+      future: transactionService.checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
       builder:
           (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -183,7 +190,17 @@ class _LyricScreenState extends State<LyricScreen> {
             );
           }
         } else {
-          return const Center(child: CircularProgressIndicator());
+          return Column(
+            children: [
+              auctionStatusText(),
+              const SizedBox(height: 30),
+              remainingTimeText(),
+              const SizedBox(height: 30),
+              bidPriceText(),
+              const SizedBox(height: 20),
+              bidButton(),
+            ],
+          );
         }
       },
     );
@@ -196,7 +213,7 @@ class _LyricScreenState extends State<LyricScreen> {
       iconSize: 60,
       onPressed: () {
         price++;
-        addBidToServer(widget.email, widget.song.id, widget.lyricIndex, price);
+        auctionService.addBidToServer(widget.email, widget.song.id, widget.lyricIndex, price);
       },
     ),
   );
@@ -287,6 +304,15 @@ class _LyricScreenState extends State<LyricScreen> {
       }
     },
   );
+}
+
+Future<void> launchUrlFromText(link) async {
+  var url = link;
+  if(await canLaunchUrl(Uri.parse(url))){
+    await launchUrl(Uri.parse(url));
+  } else {
+    throw 'Could not launch $url';
+  }
 }
 
 
