@@ -1,6 +1,6 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:versalis/Service/blockchainService.dart';
+import 'package:versalis/Controller/blockchainService.dart';
 
 void main() async {
 

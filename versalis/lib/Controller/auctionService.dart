@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
-import 'package:versalis/Service/songService.dart';
+import 'package:versalis/Controller/songService.dart';
 
 import '../Model/auctionitem.dart';
 import '../Model/bid.dart';

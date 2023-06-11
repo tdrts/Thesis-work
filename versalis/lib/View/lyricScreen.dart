@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:versalis/Model/auctionitem.dart';
 import 'package:versalis/Model/transaction.dart';
-import 'package:versalis/Service/auctionService.dart';
+import 'package:versalis/Controller/auctionService.dart';
 import 'package:versalis/View/audioplayerScreen.dart';
 
 import '../Model/song.dart';
-import '../Service/blockchainService.dart';
+import '../Controller/blockchainService.dart';
 
-import '../Service/transactionService.dart';
-import '../Service/serviceLocator.dart';
+import '../Controller/transactionService.dart';
+import '../Controller/serviceLocator.dart';
 
 //length of the auction
 const SECONDS = 30;

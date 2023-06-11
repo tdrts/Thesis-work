@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../Service/auctionService.dart';
-import '../Service/songService.dart';
-import '../Service/transactionService.dart';
-import '../Service/serviceLocator.dart';
+import '../Controller/auctionService.dart';
+import '../Controller/songService.dart';
+import '../Controller/transactionService.dart';
+import '../Controller/serviceLocator.dart';
 
 
 class StatisticsScreen extends StatefulWidget {

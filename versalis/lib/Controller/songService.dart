@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:versalis/Service/transactionService.dart';
+import 'package:versalis/Controller/transactionService.dart';
 
 import '../Model/song.dart';
 import 'serviceLocator.dart';

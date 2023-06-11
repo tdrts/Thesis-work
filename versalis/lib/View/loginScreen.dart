@@ -2,9 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:versalis/Service/userService.dart';
+import 'package:versalis/Controller/userService.dart';
 
-import '../Service/serviceLocator.dart';
+import '../Controller/serviceLocator.dart';
 import 'homeScreen.dart';
 
 class LogIn extends StatelessWidget {

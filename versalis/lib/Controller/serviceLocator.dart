@@ -1,5 +1,5 @@
 import 'package:get_it/get_it.dart';
-import 'package:versalis/Service/blockchainService.dart';
+import 'package:versalis/Controller/blockchainService.dart';
 
 import 'auctionService.dart';
 import 'songService.dart';

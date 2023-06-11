@@ -3,10 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:versalis/Extensions/durationExt.dart';
 import 'package:versalis/Model/song.dart';
-import 'package:versalis/Service/auctionService.dart';
+import 'package:versalis/Controller/auctionService.dart';
 
 import '../View/lyricScreen.dart';
-import '../Service/serviceLocator.dart';
+import '../Controller/serviceLocator.dart';
 import 'homeScreen.dart';
 
 class Audioplayer extends StatefulWidget {

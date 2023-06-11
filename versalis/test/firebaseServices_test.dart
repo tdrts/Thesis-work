@@ -5,12 +5,12 @@ import 'package:get_it/get_it.dart';
 import 'package:versalis/Model/auctionitem.dart';
 import 'package:versalis/Model/song.dart';
 import 'package:versalis/Model/transaction.dart';
-import 'package:versalis/Service/auctionService.dart';
-import 'package:versalis/Service/blockchainService.dart';
-import 'package:versalis/Service/songService.dart';
-import 'package:versalis/Service/transactionService.dart';
-import 'package:versalis/Service/userService.dart';
-import 'package:versalis/Service/serviceLocator.dart';
+import 'package:versalis/Controller/auctionService.dart';
+import 'package:versalis/Controller/blockchainService.dart';
+import 'package:versalis/Controller/songService.dart';
+import 'package:versalis/Controller/transactionService.dart';
+import 'package:versalis/Controller/userService.dart';
+import 'package:versalis/Controller/serviceLocator.dart';
 
 
 void main() async {

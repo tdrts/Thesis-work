@@ -4,9 +4,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:versalis/View/statisticsScreen.dart';
 
 import '../Model/song.dart';
-import '../Service/auctionService.dart';
-import '../Service/songService.dart';
-import '../Service/serviceLocator.dart';
+import '../Controller/auctionService.dart';
+import '../Controller/songService.dart';
+import '../Controller/serviceLocator.dart';
 import 'audioplayerScreen.dart';
 import 'loginScreen.dart';
 
