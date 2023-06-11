@@ -161,7 +161,7 @@ class _LyricScreenState extends State<LyricScreen> {
 
   FutureBuilder<TransactionLyric?> checkIfLyricBought() {
     return FutureBuilder<TransactionLyric?>(
-      future: transactionService.checkIfLyricsWasBought(widget.song.id, widget.lyricIndex),
+      future: transactionService.checkIfLyricsWasBought(widget.song.id, widget.lyricIndex, null),
       builder:
           (BuildContext context, AsyncSnapshot<TransactionLyric?> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
@@ -211,7 +211,7 @@ class _LyricScreenState extends State<LyricScreen> {
       iconSize: 60,
       onPressed: () {
         price++;
-        auctionService.addBidToServer(widget.email, widget.song.id, widget.lyricIndex, price);
+        auctionService.addBidToServer(widget.email, widget.song.id, widget.lyricIndex, price, null);
       },
     ),
   );

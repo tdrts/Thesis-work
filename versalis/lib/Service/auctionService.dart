@@ -11,22 +11,22 @@ class AuctionService {
   late final songService = getIt<SongService>();
 
   //add a new bid to the auction
-  Future addBidToServer(String userEmail, String song, int index, int price) {
-    return FirebaseFirestore.instance
+  Future addBidToServer(String userEmail, String song, int index, int price, FirebaseFirestore? firebase) {
+    return (firebase ?? FirebaseFirestore.instance)
         .collection('auctionItems')
         .where("songId", isEqualTo: song)
         .where("lyricIndex", isEqualTo: index)
         .get()
         .then((event) {
       if (event.docs.isEmpty) {
-        final docUser = FirebaseFirestore.instance.collection('auctionItems').doc();
+        final docUser = (firebase ?? FirebaseFirestore.instance).collection('auctionItems').doc();
         final bid = Bid(userEmail, price, DateTime.now());
         final item = AuctionItem(song, index, [bid]);
 
         final json = item.toJson();
         return docUser.set(json);
       } else {
-        final docUser = FirebaseFirestore.instance
+        final docUser = (firebase ?? FirebaseFirestore.instance)
             .collection('auctionItems')
             .doc(event.docs[0].id);
         var current = AuctionItem.fromJson(event.docs[0].data());
@@ -41,8 +41,8 @@ class AuctionService {
 
 
 // get lyric with most numbers of unique bidders
-  Future<String> getLyricWithHighestNoBidders() async {
-    final collectionRef = FirebaseFirestore.instance.collection('auctionItems');
+  Future<String> getLyricWithHighestNoBidders(FirebaseFirestore? firebase) async {
+    final collectionRef = (firebase ?? FirebaseFirestore.instance).collection('auctionItems');
     final snapshot = await collectionRef.get();
 
     int maxUserEmailCount = 0;
@@ -73,7 +73,7 @@ class AuctionService {
       }
     }
 
-    Song current =  await songService.getSongWithId(songId);
+    Song current =  await songService.getSongWithId(songId, firebase);
     return "\"${current.lyrics[lyricIndex]}\"\n${current.artist} - ${current.title}\n$maxUserEmailCount bidders";
   }
 

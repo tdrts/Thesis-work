@@ -12,14 +12,14 @@ class TransactionService {
 
 
   //after an auction is finished, add the transaction to server
-  Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price}) async {
+  Future<void> addTransactionToServer({required String userEmail, required String songId, required int lyricIndex,required int price, FirebaseFirestore? firebase}) async {
 
-    TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex);
+    TransactionLyric? isBought = await checkIfLyricsWasBought(songId, lyricIndex, firebase);
     if (isBought != null) {
       return Future(() => null);
     }
 
-    final docUser = FirebaseFirestore.instance.collection('lyricsTransactions').doc();
+    final docUser = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions').doc();
     final transaction = TransactionLyric(docUser.id, userEmail, songId, lyricIndex, price,
         "https://testnets.opensea.io/assets/mumbai/${blockchainController.CONTRACT_ADDRESS}/${blockchainController.tokenCounter}");
 
@@ -33,8 +33,8 @@ class TransactionService {
   }
 
   //display info about transaction or display auction screen
-  Future<TransactionLyric?> checkIfLyricsWasBought(String songId, int lyricIndex) {
-    return FirebaseFirestore.instance
+  Future<TransactionLyric?> checkIfLyricsWasBought(String songId, int lyricIndex, FirebaseFirestore? firebase) {
+    return (firebase ?? FirebaseFirestore.instance)
         .collection('lyricsTransactions')
         .where("songId", isEqualTo: songId)
         .where("lyricIndex", isEqualTo: lyricIndex)
@@ -50,8 +50,8 @@ class TransactionService {
   }
 
   // get lyric with the highest price
-  Future<String> getLyricWithHighestPrice() async {
-    return FirebaseFirestore.instance
+  Future<String> getLyricWithHighestPrice(FirebaseFirestore? firebase) async {
+    return (firebase ?? FirebaseFirestore.instance)
         .collection('lyricsTransactions')
         .orderBy("price",descending: true)
         .limit(1)
@@ -62,23 +62,23 @@ class TransactionService {
       } else {
         var current = TransactionLyric.fromJson(event.docs[0].data());
 
-        Song song =  await songService.getSongWithId(current.songId);
+        Song song =  await songService.getSongWithId(current.songId,firebase);
         return "\"${song.lyrics[current.lyricIndex]}\"\n${song.artist} - ${song.title}\n\$${current.price}";
       }
     });
   }
 
   // get number of lyrics bought for a song
-  Future<int> getNoLyricsBoughtForSong(String songId) async {
-    var transactions = FirebaseFirestore.instance.collection('lyricsTransactions').where("songId", isEqualTo: songId);
+  Future<int> getNoLyricsBoughtForSong({required String songId, FirebaseFirestore? firebase}) async {
+    var transactions = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions').where("songId", isEqualTo: songId);
     final snapshotTrans = await transactions.get();
 
     return snapshotTrans.size;
   }
 
   // get song with the most lyrics bought
-  Future<String> getSongWithHighestNoLyricsBought() async {
-    final collectionRef = FirebaseFirestore.instance.collection('lyricsTransactions');
+  Future<String> getSongWithHighestNoLyricsBought(FirebaseFirestore? firebase) async {
+    final collectionRef = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions');
     final snapshot = await collectionRef.get();
 
     Map<String, int> songTransactionCounts = {};
@@ -104,7 +104,7 @@ class TransactionService {
     String mostTransactedSongId = songTransactionCounts.keys.reduce((a, b) =>
     songTransactionCounts[a]! > songTransactionCounts[b]! ? a : b);
 
-    Song current =  await songService.getSongWithId(mostTransactedSongId);
+    Song current =  await songService.getSongWithId(mostTransactedSongId, firebase);
     return "${current.artist} - ${current.title}\n${songTransactionCounts[mostTransactedSongId]!} lyrics bought";
   }
 }

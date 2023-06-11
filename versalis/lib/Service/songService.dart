@@ -8,27 +8,24 @@ class SongService {
   late final transactionService = getIt<TransactionService>();
 
   //display available songs in playlist
-  Stream<List<Song>> readSongs() => FirebaseFirestore.instance.collection('songs')
+  Stream<List<Song>> readSongs(FirebaseFirestore? firebase) => (firebase ?? FirebaseFirestore.instance).collection('songs')
       .snapshots()
       .map((snapshot) =>
       snapshot.docs.map((doc) => Song.fromJson(doc.data())).toList());
 
   //add new songs to the playlist
-  Future<void> addSongsToServer() async {
-    final docUser = FirebaseFirestore.instance.collection('songs').doc("song0");
+  Future<void> addSongsToServer({required Song song, FirebaseFirestore? firebase}) async {
+    final docUser = (firebase ?? FirebaseFirestore.instance)
+        .collection('songs')
+        .doc(song.id);
 
-    final Song song1 = Song(docUser.id,'Coffee for Your Head', 'Powfu', 'artwork": "https://samplesongs.netlify.app/album-arts/death-bed.jpg', 'https://samplesongs.netlify.app/Death%20Bed.mp3',
-        ["Don't stay awake for too long, don't go to bed",
-          "I'll make a cup of coffee for your head",
-        ], 0
-    );
-    final json = song1.toJson();
+    final json = song.toJson();
     await docUser.set(json);
   }
 
   // get artist with the most lyrics bought
-  Future<String> getArtistWithHighestNoLyricsBought() async {
-    final songsSnapshot = await FirebaseFirestore.instance.collection('songs').get();
+  Future<String> getArtistWithHighestNoLyricsBought({FirebaseFirestore? firebase}) async {
+    final songsSnapshot = await (firebase ?? FirebaseFirestore.instance).collection('songs').get();
     Map<String, int> artistLyricsBought = {};
 
     for (var doc in songsSnapshot.docs) {
@@ -42,7 +39,7 @@ class SongService {
         doc['listenCount'] as int,
       );
 
-      final int lyricsBought = await transactionService.getNoLyricsBoughtForSong(song.id);
+      final int lyricsBought = await transactionService.getNoLyricsBoughtForSong(songId: doc.id, firebase: firebase);
       final artist = song.artist;
 
       if (artistLyricsBought.containsKey(artist)) {
@@ -64,11 +61,11 @@ class SongService {
   }
 
   // get song from song_id
-  Future<Song> getSongWithId(String id) {
-    return FirebaseFirestore.instance.collection('songs').where("id", isEqualTo: id).get().then((value) => Song.fromJson(value.docs[0].data()));
+  Future<Song> getSongWithId(String id, FirebaseFirestore? firebase) {
+    return (firebase ?? FirebaseFirestore.instance).collection('songs').where("id", isEqualTo: id).get().then((value) => Song.fromJson(value.docs[0].data()));
   }
 
-// increment listenCount
+  // increment listenCount
   void incrementListCount(songId) async {
     await FirebaseFirestore.instance.collection('songs').doc(songId).update({"listenCount": FieldValue.increment(1)});
   }
@@ -79,7 +76,7 @@ class SongService {
     final songs = songsSnapshot.docs.map((doc) => Song.fromJson(doc.data())).toList();
 
     final sortedSongs = await Future.wait(songs.map((song) async {
-      var lyricsBought = await transactionService.getNoLyricsBoughtForSong(song.id);
+      var lyricsBought = await transactionService.getNoLyricsBoughtForSong(songId: song.id);
       if (lyricsBought == 0) {
         lyricsBought = 1;
       }
