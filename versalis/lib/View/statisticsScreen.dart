@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../Service/auctionService.dart';
 import '../Service/songService.dart';
 import '../Service/transactionService.dart';
-import '../serviceLocator.dart';
+import '../Service/serviceLocator.dart';
 
 
 class StatisticsScreen extends StatefulWidget {

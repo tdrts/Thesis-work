@@ -6,7 +6,7 @@ import 'package:versalis/Model/song.dart';
 import 'package:versalis/Service/auctionService.dart';
 
 import '../View/lyricScreen.dart';
-import '../serviceLocator.dart';
+import '../Service/serviceLocator.dart';
 import 'homeScreen.dart';
 
 class Audioplayer extends StatefulWidget {

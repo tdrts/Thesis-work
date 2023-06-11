@@ -1,10 +1,10 @@
 import 'package:get_it/get_it.dart';
 import 'package:versalis/Service/blockchainService.dart';
 
-import 'Service/auctionService.dart';
-import 'Service/songService.dart';
-import 'Service/transactionService.dart';
-import 'Service/userService.dart';
+import 'auctionService.dart';
+import 'songService.dart';
+import 'transactionService.dart';
+import 'userService.dart';
 
 final getIt = GetIt.asNewInstance();
 

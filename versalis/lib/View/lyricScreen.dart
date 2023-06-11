@@ -13,7 +13,7 @@ import '../Model/song.dart';
 import '../Service/blockchainService.dart';
 
 import '../Service/transactionService.dart';
-import '../serviceLocator.dart';
+import '../Service/serviceLocator.dart';
 
 //length of the auction
 const SECONDS = 30;

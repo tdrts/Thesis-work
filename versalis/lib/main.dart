@@ -2,7 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:versalis/Service/blockchainService.dart';
-import 'package:versalis/serviceLocator.dart';
+import 'package:versalis/Service/serviceLocator.dart';
 
 import 'View/loginScreen.dart';
 

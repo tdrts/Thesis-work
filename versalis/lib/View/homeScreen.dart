@@ -6,7 +6,7 @@ import 'package:versalis/View/statisticsScreen.dart';
 import '../Model/song.dart';
 import '../Service/auctionService.dart';
 import '../Service/songService.dart';
-import '../serviceLocator.dart';
+import '../Service/serviceLocator.dart';
 import 'audioplayerScreen.dart';
 import 'loginScreen.dart';
 

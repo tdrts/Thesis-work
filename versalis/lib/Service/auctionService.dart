@@ -5,7 +5,7 @@ import 'package:versalis/Service/songService.dart';
 import '../Model/auctionitem.dart';
 import '../Model/bid.dart';
 import '../Model/song.dart';
-import '../serviceLocator.dart';
+import 'serviceLocator.dart';
 
 class AuctionService {
   late final songService = getIt<SongService>();

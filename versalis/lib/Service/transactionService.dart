@@ -3,7 +3,7 @@ import 'package:versalis/Service/songService.dart';
 
 import '../Model/song.dart';
 import '../Model/transaction.dart';
-import '../serviceLocator.dart';
+import 'serviceLocator.dart';
 import 'blockchainService.dart';
 
 class TransactionService {

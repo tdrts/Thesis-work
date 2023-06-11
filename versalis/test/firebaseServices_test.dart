@@ -10,7 +10,7 @@ import 'package:versalis/Service/blockchainService.dart';
 import 'package:versalis/Service/songService.dart';
 import 'package:versalis/Service/transactionService.dart';
 import 'package:versalis/Service/userService.dart';
-import 'package:versalis/serviceLocator.dart';
+import 'package:versalis/Service/serviceLocator.dart';
 
 
 void main() async {
