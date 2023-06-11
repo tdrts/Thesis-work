@@ -1,0 +1,15 @@
+{
+    "name": "Bad Liar",
+    "description": "I don't wanna fake it",
+    "image": "ipfs://Qme1grMTeR8WVZ1St2YpniCLtDqx1JFv75K6DwCtz4DY6X",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Imagine Dragons"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 14
+        }
+    ]
+}

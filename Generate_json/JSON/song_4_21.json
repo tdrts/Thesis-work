@@ -1,0 +1,15 @@
+{
+    "name": "Solo",
+    "description": "If your life is such a mystery",
+    "image": "ipfs://QmP5fzzvE5GJpWW9RSbbVs91dAzVY5YEVF49t7jqarwiUM",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Clean Bandit"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 21
+        }
+    ]
+}

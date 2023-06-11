@@ -132,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
               fontSize: 16,
               color: Colors.white,
             ),),
-          onTap: () {Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
+          onTap: () {
+            songService.incrementListCount(song.id);
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
         );
       }
   );

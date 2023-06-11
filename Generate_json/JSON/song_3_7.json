@@ -1,0 +1,15 @@
+{
+    "name": "Hate me",
+    "description": "You ain't gotta say it, baby, I know (I know, I know, I know)",
+    "image": "ipfs://QmUNKsdrBQrhyrZ5wpgHc8b88FiiWHWHwoPDJiVKzJxhL5",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Ellie Goulding"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 7
+        }
+    ]
+}

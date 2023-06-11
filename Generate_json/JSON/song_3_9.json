@@ -1,0 +1,15 @@
+{
+    "name": "Hate me",
+    "description": "And if you switch sides, you're gon' have to claim your place (okay)",
+    "image": "ipfs://QmUNKsdrBQrhyrZ5wpgHc8b88FiiWHWHwoPDJiVKzJxhL5",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Ellie Goulding"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 9
+        }
+    ]
+}

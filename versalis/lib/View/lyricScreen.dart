@@ -16,14 +16,10 @@ import '../Service/transactionService.dart';
 import '../serviceLocator.dart';
 
 //length of the auction
-const SECONDS = 20;
+const SECONDS = 30;
 
 //length bid price
 const INITIAL_PRICE = 5;
-
-//singleton for blockchainController
-final blockchainController = BlockchainService.instance;
-final transactionService = getIt<TransactionService>();
 
 class LyricScreen extends StatefulWidget {
   LyricScreen({
@@ -46,6 +42,8 @@ class LyricScreen extends StatefulWidget {
 class _LyricScreenState extends State<LyricScreen> {
 
   final auctionService = getIt<AuctionService>();
+  final blockchainController = BlockchainService.instance;
+  final transactionService = getIt<TransactionService>();
   AuctionItem? item;
   Timer? timer;
   int seconds = SECONDS;
@@ -262,9 +260,9 @@ class _LyricScreenState extends State<LyricScreen> {
   }
 
   Widget NFTLinkText(link) => InkWell(
-    child: Text(
-      'NFT Link:\n$link\nTap to open in OpenSea!',
-      style: const TextStyle(
+    child: const Text(
+      'Tap to see NFT in OpenSea!',
+      style: TextStyle(
         fontSize: 18,
         color: Colors.black,
         backgroundColor: Color.fromRGBO(166, 228, 245, 0.5),

@@ -5,9 +5,7 @@ import 'package:versalis/Extensions/durationExt.dart';
 import 'package:versalis/Model/song.dart';
 import 'package:versalis/Service/auctionService.dart';
 
-import '../Service/songService.dart';
 import '../View/lyricScreen.dart';
-import '../main.dart';
 import '../serviceLocator.dart';
 import 'homeScreen.dart';
 
@@ -31,7 +29,6 @@ class _AudioplayerState extends State<Audioplayer> {
   bool isPlaying = false;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
-  final songService = getIt<SongService>();
 
   @override
   void initState() {
@@ -179,7 +176,6 @@ class _AudioplayerState extends State<Audioplayer> {
               await audioPlayer.pause();
             } else {
               await audioPlayer.play(UrlSource(widget.song.url));
-              songService.incrementListCount(widget.song.id);
             }
           },
         ),

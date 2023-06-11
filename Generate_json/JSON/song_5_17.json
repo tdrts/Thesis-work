@@ -1,0 +1,15 @@
+{
+    "name": "Without Me",
+    "description": "I don't know why (yeah, I don't know why)",
+    "image": "ipfs://QmTfxMjCq2VS8fjydgJ3cRAPfFV7ciZjXBJykrsJoPuSmi",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Halsey"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 17
+        }
+    ]
+}

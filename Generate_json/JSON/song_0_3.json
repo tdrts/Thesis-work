@@ -1,0 +1,15 @@
+{
+    "name": "Coffee for Your Head",
+    "description": "Yeah, I don't wanna fall asleep, I don't wanna pass away",
+    "image": "ipfs://QmPMGHBN3zxg4cQFyYWCnSC9xkpLiLDFtiyUGPnWqfwbwu",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Powfu"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 3
+        }
+    ]
+}

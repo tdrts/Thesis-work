@@ -1,0 +1,15 @@
+{
+    "name": "Hate me",
+    "description": "I bet you're still walkin' on a tightrope",
+    "image": "ipfs://QmUNKsdrBQrhyrZ5wpgHc8b88FiiWHWHwoPDJiVKzJxhL5",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Ellie Goulding"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 5
+        }
+    ]
+}

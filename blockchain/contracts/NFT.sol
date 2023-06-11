@@ -34,8 +34,6 @@ contract NFT is ERC721, Ownable {
         return _tokenURIs[_tokenId];
     }
 
-    // Override isApprovedForAll to auto-approve OS's proxy contract
-
     function isApprovedForAll(
         address _owner,
         address _operator
@@ -45,8 +43,6 @@ contract NFT is ERC721, Ownable {
             return true;
         }
 
-        // otherwise, use the default ERC721.isApprovedForAll()
         return  ERC721.isApprovedForAll(_owner, _operator);
     }
-
 }

@@ -1,0 +1,15 @@
+{
+    "name": "Coffee for Your Head",
+    "description": "I wish it could be me, but I won't make it out this bed",
+    "image": "ipfs://QmPMGHBN3zxg4cQFyYWCnSC9xkpLiLDFtiyUGPnWqfwbwu",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Powfu"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 11
+        }
+    ]
+}

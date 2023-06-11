@@ -1,0 +1,15 @@
+{
+    "name": "Coffee for Your Head",
+    "description": "'Cause, yeah, we still young, there's so much we haven't done",
+    "image": "ipfs://QmPMGHBN3zxg4cQFyYWCnSC9xkpLiLDFtiyUGPnWqfwbwu",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Powfu"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 9
+        }
+    ]
+}

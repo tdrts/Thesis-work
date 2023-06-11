@@ -1,0 +1,15 @@
+{
+    "name": "Faded",
+    "description": "I'm faded, I'm faded",
+    "image": "ipfs://QmSwRqSrm2Mdb2AUyqV3NB3CrJz4YAdRacMRW8fGRoY7CR",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Alan Walker"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 15
+        }
+    ]
+}

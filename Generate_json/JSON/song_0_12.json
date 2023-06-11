@@ -1,0 +1,15 @@
+{
+    "name": "Coffee for Your Head",
+    "description": "I hope I go to Heaven, so I see you once again",
+    "image": "ipfs://QmPMGHBN3zxg4cQFyYWCnSC9xkpLiLDFtiyUGPnWqfwbwu",
+    "attributes": [
+        {
+            "trait_type": "Artist",
+            "value": "Powfu"
+        },
+        {
+            "trait_type": "Lyric Index",
+            "value": 12
+        }
+    ]
+}
