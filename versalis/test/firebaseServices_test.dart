@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
@@ -94,6 +96,116 @@ void main() async {
       expect(song2.url, equals('https://example.com/song2.mp3'));
       expect(song2.lyrics, equals(['Lyric 3', 'Lyric 4']));
       expect(song2.listenCount, equals(0));
+    });
+  });
+
+  group('getSongWithId', () {
+    final firestore = FakeFirebaseFirestore();
+
+    Song songData1 = Song(
+      'song1',
+      'Song 1',
+      'Artist 1',
+      'song1.jpg',
+      'https://example.com/song1.mp3',
+      ['Lyric 1', 'Lyric 2'],
+      0,
+    );
+
+    songService.addSongsToServer(song: songData1, firebase: firestore);
+
+    test('should return the correct song with a valid ID', () async {
+      final songId = 'song1';
+      final song = await songService.getSongWithId(songId, firestore);
+
+      expect(song.id, songId);
+      expect(song.title, 'Song 1');
+      expect(song.artist, 'Artist 1');
+      expect(song.artwork, 'song1.jpg');
+      expect(song.url, 'https://example.com/song1.mp3');
+      expect(song.listenCount, 0);
+    });
+
+    test('should throw an error when the song ID is not found', () async {
+      final songId = 'invalid_id';
+      expect(() => songService.getSongWithId(songId, firestore), throwsA(isA<RangeError>()));
+    });
+  });
+
+  group('incrementListCount', () {
+    test('should return the listen count incremented by 1', () async {
+      final firestore = FakeFirebaseFirestore();
+
+      Song songData1 = Song(
+        'song1',
+        'Song 1',
+        'Artist 1',
+        'song1.jpg',
+        'https://example.com/song1.mp3',
+        ['Lyric 1', 'Lyric 2'],
+        0,
+      );
+
+      songService.addSongsToServer(song: songData1, firebase: firestore);
+      songService.incrementListCount('song1', firestore);
+      final song = await songService.getSongWithId('song1', firestore);
+
+      expect(song.listenCount, 1);
+    });
+  });
+
+  group('sortSongsByRatioBetweenListensAndLyricsBought', () {
+    test('should return songs sorted by ratio', () async {
+      final firestore = FakeFirebaseFirestore();
+      Song songData1 = Song(
+        'song1',
+        'Song 1',
+        'Artist 1',
+        'song1.jpg',
+        'https://example.com/song1.mp3',
+        ['Lyric 1', 'Lyric 2'],
+        3,
+      );
+      Song songData2 = Song(
+        'song2',
+        'Song 2',
+        'Artist 2',
+        'song2.jpg',
+        'https://example.com/song2.mp3',
+        ['Lyric 3', 'Lyric 4'],
+        2,
+      );
+
+      songService.addSongsToServer(song: songData1, firebase: firestore);
+      songService.addSongsToServer(song: songData2, firebase: firestore);
+      final result = await songService.sortSongsByRatioBetweenListensAndLyricsBought(firestore);
+
+      expect(result.length, equals(2));
+      expect(result[0].id, equals('song1'));
+      expect(result[1].id, equals('song2'));
+
+      firestore.collection('lyricsTransactions').add({
+        'id': '1',
+        'userEmail': 'user1',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 10,
+        'link': 'link1',
+      });
+      firestore.collection('lyricsTransactions').add({
+        'id': '2',
+        'userEmail': 'user2',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 20,
+        'link': 'link2',
+      });
+
+      final result2 = await songService.sortSongsByRatioBetweenListensAndLyricsBought(firestore);
+
+      expect(result2.length, equals(2));
+      expect(result2[0].id, equals('song2'));
+      expect(result2[1].id, equals('song1'));
     });
   });
 
@@ -421,6 +533,154 @@ void main() async {
       final no1 = await auctionService.getLyricWithHighestNoBidders(firestore);
       expect(no1, equals("\"Lyric 2\"\nArtist 1 - Song 1\n2 bidders"));
 
+    });
+  });
+
+  group('findIfLyricInProgress', () {
+    test('should return 0 if lyric is not in auction and other int if auction in progress', () async {
+      late FakeFirebaseFirestore firebase;
+
+      firebase = FakeFirebaseFirestore();
+
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 2,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song2',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+
+      firebase.collection('lyricsTransactions').add({
+        'id': '1',
+        'userEmail': 'user1',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 10,
+        'link': 'link1',
+      });
+      firebase.collection('lyricsTransactions').add({
+        'id': '2',
+        'userEmail': 'user2',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 20,
+        'link': 'link2',
+      });
+      firebase.collection('lyricsTransactions').add({
+        'id': '3',
+        'userEmail': 'user2',
+        'songId': 'song2',
+        'lyricIndex': 1,
+        'price': 20,
+        'link': 'link2',
+      });
+
+      final result = await auctionService.findIfLyricInProgress('song1', 1, firebase);
+      expect(result, equals(-1));
+
+      final result2 = await auctionService.findIfLyricInProgress('song2', 1, firebase);
+      expect(result2, equals(0));
+    });
+  });
+
+  group('findIfSongInProgress', () {
+    test('should return 0 if song is not in auction and other int if auction in progress', () async {
+      late FakeFirebaseFirestore firebase;
+
+      firebase = FakeFirebaseFirestore();
+
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 2,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song2',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+
+      firebase.collection('lyricsTransactions').add({
+        'id': '1',
+        'userEmail': 'user1',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 10,
+        'link': 'link1',
+      });
+      firebase.collection('lyricsTransactions').add({
+        'id': '2',
+        'userEmail': 'user2',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 20,
+        'link': 'link2',
+      });
+
+
+      final result = await auctionService.findIfAuctionInProgress('song1', firebase);
+      expect(result, equals(0));
+
+      final result2 = await auctionService.findIfAuctionInProgress('song2', firebase);
+      expect(result2, equals(1));
+    });
+  });
+
+  group('getNoAuctionsInProgress', () {
+    test('should return the correct difference between the number of auctions and number of lyric transactions', () async {
+      late FakeFirebaseFirestore firebase;
+
+      firebase = FakeFirebaseFirestore();
+
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song1',
+        'lyricIndex': 2,
+        'biddings': [],
+      });
+      firebase.collection('auctionItems').add({
+        'songId': 'song2',
+        'lyricIndex': 1,
+        'biddings': [],
+      });
+
+      firebase.collection('lyricsTransactions').add({
+        'id': '1',
+        'userEmail': 'user1',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 10,
+        'link': 'link1',
+      });
+      firebase.collection('lyricsTransactions').add({
+        'id': '2',
+        'userEmail': 'user2',
+        'songId': 'song1',
+        'lyricIndex': 1,
+        'price': 20,
+        'link': 'link2',
+      });
+
+
+      final result = await auctionService.getNoAuctionsInProgress(firebase);
+      expect(result, equals('1'));
     });
   });
 }

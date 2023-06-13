@@ -25,8 +25,8 @@ class TransactionService {
 
     String url = r'ipfs://' + blockchainController.JSON_CID! + r'/' + '${songId}_${lyricIndex}.json';
 
-    //uncomment the next line when you want the NFT to be minted
-    //blockchainController.mintStream(url);
+    //comment the next line when you don't want the NFT to be minted
+    blockchainController.mintStream(url);
 
     final json = transaction.toJson();
     await docUser.set(json);

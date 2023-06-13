@@ -5,10 +5,13 @@ import '../Controller/auctionService.dart';
 import '../Controller/songService.dart';
 import '../Controller/transactionService.dart';
 import '../Controller/serviceLocator.dart';
+import 'homeScreen.dart';
 
 
 class StatisticsScreen extends StatefulWidget {
-  const StatisticsScreen({Key? key}) : super(key: key);
+  const StatisticsScreen({Key? key, required this.email}) : super(key: key);
+
+  final String email;
 
   @override
   State<StatisticsScreen> createState() => _StatisticsScreenState();
@@ -35,7 +38,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ),
         leading: BackButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => HomeScreen(userEmail: widget.email)));
           },
         ),
         title: const Text(
@@ -51,7 +57,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       body: ListView(
         padding: const EdgeInsets.only(top: 30, bottom: 30, left: 15),
         children: [
-          statisticsTile("Number of auctions in progress", auctionService.getNoAuctionsInProgress()),
+          statisticsTile("Number of auctions in progress", auctionService.getNoAuctionsInProgress(null)),
           const SizedBox(height: 30),
           statisticsTile("Lyric with highest price", transactionService.getLyricWithHighestPrice(null)),
           const SizedBox(height: 30),

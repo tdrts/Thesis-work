@@ -66,17 +66,17 @@ class SongService {
   }
 
   // increment listenCount
-  void incrementListCount(songId) async {
-    await FirebaseFirestore.instance.collection('songs').doc(songId).update({"listenCount": FieldValue.increment(1)});
+  void incrementListCount(songId, FirebaseFirestore? firebase) async {
+    await (firebase ?? FirebaseFirestore.instance).collection('songs').doc(songId).update({"listenCount": FieldValue.increment(1)});
   }
 
   // sort songs descending by the ratio between listenCount/ lyricsBought
-  Future<List<Song>> sortSongsByRatioBetweenListensAndLyricsBought() async {
-    final songsSnapshot = await FirebaseFirestore.instance.collection('songs').get();
+  Future<List<Song>> sortSongsByRatioBetweenListensAndLyricsBought(FirebaseFirestore? firebase) async {
+    final songsSnapshot = await (firebase ?? FirebaseFirestore.instance).collection('songs').get();
     final songs = songsSnapshot.docs.map((doc) => Song.fromJson(doc.data())).toList();
 
     final sortedSongs = await Future.wait(songs.map((song) async {
-      var lyricsBought = await transactionService.getNoLyricsBoughtForSong(songId: song.id);
+      var lyricsBought = await transactionService.getNoLyricsBoughtForSong(songId: song.id, firebase: firebase);
       if (lyricsBought == 0) {
         lyricsBought = 1;
       }
@@ -93,5 +93,4 @@ class SongService {
 
     return sortedSongs.map((item) => item['song'] as Song).toList();
   }
-
 }

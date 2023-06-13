@@ -79,33 +79,33 @@ class AuctionService {
 
 
 // number of auctions in progress
-  Future<String> getNoAuctionsInProgress() async {
-    var auctions = FirebaseFirestore.instance.collection('auctionItems');
+  Future<String> getNoAuctionsInProgress(FirebaseFirestore? firebase) async {
+    var auctions = (firebase ?? FirebaseFirestore.instance).collection('auctionItems');
     final snapshotAuctions = await auctions.get();
 
-    var transactions = FirebaseFirestore.instance.collection('lyricsTransactions');
+    var transactions = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions');
     final snapshotTrans = await transactions.get();
 
     return Future.value((snapshotAuctions.size - snapshotTrans.size).toString());
   }
 
 // find songs in the auction process
-  Future<int> findIfAuctionInProgress(String songId) async {
-    var auctions = FirebaseFirestore.instance.collection('auctionItems').where("songId", isEqualTo: songId);
+  Future<int> findIfAuctionInProgress(String songId, FirebaseFirestore? firebase) async {
+    var auctions = (firebase ?? FirebaseFirestore.instance).collection('auctionItems').where("songId", isEqualTo: songId);
     final snapshotAuctions = await auctions.get();
 
-    var transactions = FirebaseFirestore.instance.collection('lyricsTransactions').where("songId", isEqualTo: songId);
+    var transactions = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions').where("songId", isEqualTo: songId);
     final snapshotTrans = await transactions.get();
 
     return snapshotAuctions.size - snapshotTrans.size;
   }
 
 // find lyrics in the auction process
-  Future<int> findIfLyricInProgress(String songId, int index) async {
-    var auctions = FirebaseFirestore.instance.collection('auctionItems').where("songId", isEqualTo: songId).where("lyricIndex", isEqualTo: index);
+  Future<int> findIfLyricInProgress(String songId, int index, FirebaseFirestore? firebase) async {
+    var auctions = (firebase ?? FirebaseFirestore.instance).collection('auctionItems').where("songId", isEqualTo: songId).where("lyricIndex", isEqualTo: index);
     final snapshotAuctions = await auctions.get();
 
-    var transactions = FirebaseFirestore.instance.collection('lyricsTransactions').where("songId", isEqualTo: songId).where("lyricIndex", isEqualTo: index);
+    var transactions = (firebase ?? FirebaseFirestore.instance).collection('lyricsTransactions').where("songId", isEqualTo: songId).where("lyricIndex", isEqualTo: index);
     final snapshotTrans = await transactions.get();
 
     return snapshotAuctions.size - snapshotTrans.size;

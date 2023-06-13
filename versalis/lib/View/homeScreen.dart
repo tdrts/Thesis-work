@@ -64,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget listOfSongsWidget(context) => FutureBuilder<List<Song>>(
-      future: songService.sortSongsByRatioBetweenListensAndLyricsBought(),
+      future: songService.sortSongsByRatioBetweenListensAndLyricsBought(null),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Text("Something went wrong ${snapshot.error}");
@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget statisticsButton() => MaterialButton(
     onPressed: () {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => const StatisticsScreen()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => StatisticsScreen(email: widget.userEmail)));
     },
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(5.0),
@@ -113,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
   );
 
   Widget songTile(Song song) => FutureBuilder<int>(
-      future: auctionService.findIfAuctionInProgress(song.id),
+      future: auctionService.findIfAuctionInProgress(song.id, null),
       builder: (context, snapshot) {
         if (!snapshot.hasData){
           return const CircularProgressIndicator();
@@ -133,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Colors.white,
             ),),
           onTap: () {
-            songService.incrementListCount(song.id);
+            songService.incrementListCount(song.id, null);
             Navigator.push(context, MaterialPageRoute(builder: (context)=> Audioplayer(song: song,email: widget.userEmail,)));},
         );
       }

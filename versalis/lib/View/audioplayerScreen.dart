@@ -184,7 +184,7 @@ class _AudioplayerState extends State<Audioplayer> {
   Widget lyricTile(item, index) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: FutureBuilder<int>(
-            future: auctionService.findIfLyricInProgress(widget.song.id, index),
+            future: auctionService.findIfLyricInProgress(widget.song.id, index, null),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const CircularProgressIndicator();

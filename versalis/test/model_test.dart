@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:versalis/Model/auctionitem.dart';
+import 'package:versalis/Model/bid.dart';
 import 'package:versalis/Model/song.dart';
 import 'package:versalis/Model/transaction.dart';
 import 'package:versalis/Model/user.dart';
@@ -39,7 +41,7 @@ void main() {
       }));
     });
 
-    test('should convert a Purchase object to a Map<String, dynamic>', () {
+    test('should convert a TransactionLyric object to a Map<String, dynamic>', () {
       final purchase = TransactionLyric(
         '1',
         'test@example.com',
@@ -58,6 +60,42 @@ void main() {
       }));
     });
 
+    test('should convert a Bid object to a Map<String, dynamic>', () {
+      final bid = Bid('test@example.com', 9, DateTime(2023, 6, 12, 12, 0),);
+
+      final jsonMap = bid.toJson();
+
+      expect(jsonMap, equals({
+        'userEmail': 'test@example.com',
+        'price': 9,
+        'time': '2023-06-12 12:00:00.000', // Replace with your expected formatted time string
+      }));
+    });
+
+    test('should convert an AuctionItem object to a Map<String, dynamic>', () {
+      final bid1 = Bid('test1@example.com', 9, DateTime(2023, 6, 12, 12, 0));
+      final bid2 = Bid('test2@example.com', 19, DateTime(2023, 6, 13, 12, 0));
+      final auctionItem = AuctionItem('song_1', 0, [bid1, bid2]);
+
+      final jsonMap = auctionItem.toJson();
+
+      expect(jsonMap, equals({
+        'songId': 'song_1',
+        'lyricIndex': 0,
+        'biddings': [
+          {
+            'userEmail': 'test1@example.com',
+            'price': 9,
+            'time': '2023-06-12 12:00:00.000',
+          },
+          {
+            'userEmail': 'test2@example.com',
+            'price': 19,
+            'time': '2023-06-13 12:00:00.000',
+          },
+        ],
+      }));
+    });
   });
 
   group('fromJson', () {
@@ -98,5 +136,51 @@ void main() {
     expect(transaction.lyricIndex, equals(0));
     expect(transaction.price, equals(5));
     expect(transaction.link, equals("a.com"));
+  });
+
+  test('should create a Bid object from a Map<String, dynamic>', () {
+    final bidJson = {
+      'userEmail': 'test@example.com',
+      'price': 9,
+      'time': '2023-06-12 12:00:00.000',
+    };
+
+    final bid = Bid.fromJson(bidJson);
+
+    expect(bid.userEmail, equals('test@example.com'));
+    expect(bid.price, equals(9));
+    expect(bid.time, equals(DateTime.parse('2023-06-12 12:00:00.000')));
+  });
+
+  test('should create an AuctionItem object from a Map<String, dynamic>', () {
+    final auctionItemJson = {
+      'songId': 'song_1',
+      'lyricIndex': 0,
+      'biddings': [
+        {
+          'userEmail': 'test1@example.com',
+          'price': 9,
+          'time': '2023-06-12 12:00:00.000',
+        },
+        {
+          'userEmail': 'test2@example.com',
+          'price': 19,
+          'time': '2023-06-13 12:00:00.000',
+        },
+      ],
+    };
+
+    final auctionItem = AuctionItem.fromJson(auctionItemJson);
+
+    expect(auctionItem.songId, equals('song_1'));
+    expect(auctionItem.lyricIndex, equals(0));
+    expect(auctionItem.biddings, isA<List<Bid>>());
+    expect(auctionItem.biddings.length, equals(2));
+    expect(auctionItem.biddings[0].userEmail, equals('test1@example.com'));
+    expect(auctionItem.biddings[0].price, equals(9));
+    expect(auctionItem.biddings[0].time, equals(DateTime.parse('2023-06-12 12:00:00.000')));
+    expect(auctionItem.biddings[1].userEmail, equals('test2@example.com'));
+    expect(auctionItem.biddings[1].price, equals(19));
+    expect(auctionItem.biddings[1].time, equals(DateTime.parse('2023-06-13 12:00:00.000')));
   });
 }
